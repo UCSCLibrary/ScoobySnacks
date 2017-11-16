@@ -1,5 +1,3 @@
-<% if f.object.multiple? key %>
-    <%= f.input key, as: :multi_value, input_html: { class: 'form-control' }, required: f.object.required?(key) %>
-<% else %>
-    <%= f.input key, required: f.object.required?(key) %>
-<% end %>
+<% options[:as] = :multi_value if f.object.multiple? key %>
+<%= f.input key, options %>
+
