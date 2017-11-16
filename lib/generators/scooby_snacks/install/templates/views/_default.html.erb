@@ -1,0 +1,3 @@
+<% input_type = METADATA_SCHEMA['work_type'][curation_concern.model_name][key]['input'] %>
+<% input_type = 'scalar' if input_type == "default" %>
+<%= render partial: input_type, property: property, input_type: input_type %>

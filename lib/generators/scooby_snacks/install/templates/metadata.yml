@@ -1,0 +1,283 @@
+#-------------------
+# Other Schema Files
+#-------------------
+# This section specifies other configuration files that contain
+# metadata information. Each other metadata file may contain 
+# any information that would be valid in this file. Schema information
+# from all files is merged together.
+# When possible, information from all files is combined. For example, 
+# if a property is defined in one file, it cannot be un-defined in 
+# another file, though more options can be added.
+# Some options associated with properties can be defined in one file
+# and overwritten by another. Options like this include 'required'
+# and 'multiple'. 
+# Other options must be defined only once per property
+# and cannot be overwritten. These include "predicate" and "definition". 
+
+
+
+
+
+#-------------------
+# Property Settings
+#-------------------
+# This section defines every metadata property that can be used 
+# in the system. Individual work types may override some settings 
+# defined here. Predicates for each property should be defined
+# here, and cannot be overridden once defined.
+
+properties:
+
+  default:
+    definition: "This property has not yet been documented."
+    usage_note: "This is the default usage note for a metadata property. If you are seeing this in an active application, you need to define a usage note for your property."
+    usage_warning: 
+    required: false
+    multiple: true
+    primary: false
+    hidden: false
+    work_title: false
+    input: scalar
+    range: RDF:Literal
+
+  title:
+    definition: "The title of the resource."
+    predicate: "DC:title"
+    label: "Title"
+    range: "rdfs:Literal"
+    required: true
+    primary: true
+    work_title: true
+
+  title_alternative:
+    definition: "An alternative title for the resource."
+    predicate: "DC:alternative"
+    range: "rdfs:Literal"
+  creator:
+    definition: "A person or organization responsible for creating the resource."
+    predicate: "DC:creator"
+    range: "Agent"
+#    vocabularies: "NAF, ULAN, Local"
+    primary: true
+    required: true
+    facet: true
+
+  contributor:
+    definition: "A person or organization responsible for making contributions to the resource."
+    predicate: "DC:contributor"
+    range: "Agent"
+#    vocabularies: "NAF, ULAN, Local"
+    facet: true
+
+  publisher:
+    definition: "An entity responsible for making the resource available."
+    predicate: "DC:publisher"
+    range: "Agent"
+    facet: true
+
+  description:
+    definition: "A summary or account of the resource."
+    predicate: "DC:description"
+    range: "rdfs:Literal"
+    primary: true
+
+  description_abstract:
+    definition: "A summary of the resource."
+    predicate: "DC:description"
+    range: "rdfs:Literal"
+
+  description_contents:
+    definition: "A list of subunits of the resource."
+    predicate: "DC:tableOfContents"
+    range: "rdfs:Literal"
+
+  scale:
+    definition: "Ratio of the dimensions of a form contained or embodied in a resource to the dimensions of the entity it represents, e.g., for images or cartographic resources."
+    predicate: "Bibframe:cartographicScale"
+    range: "rdfs:Literal"
+
+  subject:
+    definition: "The topic of the resource."
+    predicate: "DC:subject"
+    range: "skos:Concept"
+#    vocabularies: LCSH, NAF, ULAN, GNIS, AAT, Local
+    facet: true
+    primary: true
+
+  genre_form:
+    definition: "The genre, form, and/or physical characteristics of the resource being described. The material or physical carrier of the resource. Does not capture aboutness."
+    predicate: "DC:medium"
+    range: "skos:Concept"
+#    vocabularies: AAT
+    facet: true
+
+  coordinates:
+    definition: Spatial characteristics of the resource.
+    predicate: "DC:spatial"
+    range: Geospatial
+
+  date_created: 
+    definition: "Date of creation of the resource."
+    predicate: "DC:created"
+    range: "edm:TimeSpan"
+    label: "Date Created"
+    primary: true
+    required: true
+
+  date_published:
+    definition: "Date of formal issuance (e.g., publication) of the resource."
+    predicate: "DC:issued"
+    range: "edm:TimeSpan"
+    label: "Date Published"
+
+  language:
+    definition: "A language of the resource."
+    predicate: "DC:language"
+    range: skos:concept
+
+  dcmi_type:
+    definition: "General nature or type of the resource (e.g., image, text, etc.). Does not capture aboutness."
+    predicate: "DC:type"
+    range: "skos:concept"
+#    vocabularies: DCMI
+    facet: true
+#    display_type: true
+
+  source:
+    definition: "Use to record and previous publication information, e.g., the place of publication and publisher name for a physical resource."
+    predicate: "DC:source"
+
+  physical_extent:
+    definition: "Physical dimensions of the source resource."
+    predicate: "DC:extent"
+
+  box_folder:
+    definition: "Location in the holding agency where the item is shelved or stored."
+    predicate: "BF2:physicalLocation"
+
+  accession_number:
+    definition: "An archival accession number for the resource."
+    predicate: "DC:identifier"
+    range: "rdfs:Literal"
+#    multiple: false
+
+  call_number:
+    definition: "A call number identifier for the resource."
+    predicate: "Bibframe:classification"
+#    multiple: false
+
+  donor_provenance:
+    definition: "A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation."
+    predicate: "DC:provenance"
+    range: "rdf:Object"
+
+  rights_holder:
+    definition: "A person or organization owning or managing rights over the resource."
+    predicate: "DC:rightsHolder"
+    range: "rdf:Object"
+
+  rights_copyright_statement:
+    definition: "Information about rights held in and over the resource."
+    predicate: "DC:rights"
+    primary: true
+    required: true
+
+  rights_status:
+    definition: "Information about who can access the resource or an indication of its security status."
+    predicate: "DC:accessRights"
+    primary: true
+    required: true
+    facet: true
+
+  rights_license:
+    definition: "An associated license for the object (i.e. Creative Commons license, software licenses, etc.)."
+    predicate: "DC:license"
+
+  "collection_series":
+    definition: "A related resource in which the described resource is physically or logically included."
+    predicate: "DC:isPartOf"
+    facet: true
+
+  related_resource:
+    definition: "A resource related to this resource in a publicly visible way"
+    predicate: "DC:relation"
+    range: RelatedResource
+
+
+#-------------------
+# Class Settings
+#-------------------
+# This sections defines classes of nested objects defined in 
+# the system that are not PCDM works. These may be used as the objects
+# of predicates, and may have their own predicates applied.  
+# Here, we define which properties are available to each Class.
+
+classes:
+  Agent:
+    parent: "ActiveTripes::Resource"
+    rdf_label: "::RDF::Vocab::FOAF.Agent"
+    properties: 
+      local_label:
+        definition: "If set, this is a local label for this agent to be indexed and displayed instead of any label fetched from remote authority"
+        predicate: 'skos:altLabel'
+#  Timespan:
+#    parent: "ActiveTripes::Resource"
+#    rdf_label: "::RDF::Vocab::FOAF.Agent"
+#    properties:
+#      label:
+#        definition: "A name or label for this timespan"
+#        predicate: "skos:prefLabel"
+#      begin:
+#        definition: "The time when a time period began or commenced."
+#        predicate: "edm:begin"
+#      end:
+#        definition: "The time when a time period ended."
+#        predicate: "edm:end"
+#  Link:
+#    properties:
+#      "label":
+#        definition: "The title of this resource to be displayed publicly"
+#        predicate: "skos:prefLabel"
+#      "linked_resource_type":
+#        definition: "The human-readable type of linked resource (e.g. finding aid)."
+#        predicate: "ucsd:relatedType"
+#      url:
+#        definition: "The address of the resource to link to"
+#        predicate: "schema:url"
+#        range: "xsd:anyURI"
+
+#-------------------
+# Work Type Settings
+#-------------------
+# Here we define metadata settings based on work type.
+# This section specifies which properties (defined above)
+# may be applied to each work type, and may specify display
+# settings such as "required" or "hidden".
+# 
+# In the future, this may be extended to actually define 
+# the work types for the application here.
+
+
+work_types:
+  work:
+    properties:
+      title:
+      description:
+        required: true
+      creator:
+      contributor:
+      physical_extent:
+#      rights_license:
+  lecture:
+  course:
+  gdao_work:
+
+#-------------------
+# RDF Namespaces
+#-------------------
+# Here we can define additional namespaces for rdf predicates.
+# The most common namespaces are predefined by the system, but
+# this allows us to define more.
+
+namespaces:
+  edm: "http://www.europeana.eu/schemas/edm/"

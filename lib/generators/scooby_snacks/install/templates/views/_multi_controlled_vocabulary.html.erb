@@ -1,0 +1,13 @@
+<% data = {'autocomplete-url' => property['vocabularies'].first,
+           'autocomplete' => key,
+           'authority-select' => property['vocabularies']} %>
+<%=
+f.input key,
+as: input_type.to_s,
+input_html: {
+    class: "form-control #{key}-input",
+    data: data
+} ,
+wrapper_html: { data: data},
+required: false 
+%>
