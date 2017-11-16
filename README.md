@@ -1,15 +1,14 @@
 # ScoobySnacks
 
-This gem is a first attempt to allow Hyrax applications to define their entire metadata profile in a configuration file. This allows metadata librarians to make changes to the metadata schema and indexing rules without developer assitance. 
+This gem is an attempt to allow administrators of Hyrax applications to define their entire metadata schema in a configuration file (or files). We hope that this will encourage clear communication about metadata practices, help share metadata profiles between institutions, and allow metadata librarians to control the application metadata schema without developer assitance. 
 
 The name ScoobySnacks reflects the fact that this gem addresses a similar need to the 'dog-biscuits' gem, but takes a different approach. We plan to explore the possibility of merging the gems in the future, retaining the best aspects of each. 
 
 This project is currently designed for Hyrax 1. Hyrax 2 branch is planned. 
 
-
 ## Installation
 
-Add this line to your application's Gemfile:
+First, install the gem by adding this line to your application's Gemfile:
 
 ```ruby
 gem 'scooby_snacks'
@@ -19,30 +18,10 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
+Then run the gem's install scripts to modify your application files to load the metadata schema from configuration files.
 
-    $ gem install scooby_snacks
+    $ bundle exec rake scooby_snacks:install
 
-Then modify the following files:
+## Configuring the Metadata Schema
 
-In `app/forms/WORK_TYPE_form.rb`,
-```ruby
-include ScoobySnacks::WorkFormBehavior
-```
-
-In `app/models/WORK_TYPE.rb`,
-```ruby
-include ScoobySnacks::WorkModelBehavior
-```
-
-In `app/models/solr_document.rb`,
-```ruby
-include ScoobySnacks::SolrDocumentBehavior
-```
-
-In `app/presenters/WORK_TYPE_presenter.rb`,
-```ruby
-include ScoobySnacks::PresenterBehavior
-```
-
-
+Check out this gem's wiki for thoughts on how the metadata schema configuration files are formatted. We want feedback about how exactly this should work.
