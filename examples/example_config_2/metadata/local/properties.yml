@@ -1,0 +1,61 @@
+#-------------------
+# Local Property Settings
+# EXAMPLE - NOT A REAL SCHEMA
+#-------------------
+# This section defines every metadata property that can be used 
+# in the system. Individual work types may override some settings 
+# defined here. Predicates for each property should be defined
+# here, and cannot be overridden once defined.
+
+properties:
+
+  default:
+    definition: "This property has not yet been documented."
+    usage_note: "This is the default usage note for a metadata property. If you are seeing this in an active application, you need to define a usage note for your property."
+    usage_warning: 
+    required: false
+    multiple: true
+    primary: false
+    hidden: false
+    work_title: false
+    input: scalar
+    range: RDF:Literal
+
+  title_alternative:
+    label: "Other titles"
+
+  accession_number:
+    definition: "An archival accession number for the resource."
+    predicate: "DC:identifier"
+    range: "rdfs:Literal"
+    multiple: false
+
+  call_number:
+    definition: "A call number identifier for the resource."
+    predicate: "Bibframe:classification"
+    multiple: false
+
+  donor_provenance:
+    definition: "A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation."
+    predicate: "DC:provenance"
+    range: "rdf:Object"
+
+  box_folder:
+    definition: "Location in the holding agency where the item is shelved or stored."
+    predicate: "BF2:physicalLocation"
+  rights_holder:
+    definition: "A person or organization owning or managing rights over the resource."
+    predicate: "DC:rightsHolder"
+    range: "rdf:Object"
+
+  dcmi_type:
+    definition: "General nature or type of the resource (e.g., image, text, etc.). Does not capture aboutness."
+    predicate: "DC:type"
+    range: "skos:concept"
+    facet: true
+
+  scale:
+    definition: "Ratio of the dimensions of a form contained or embodied in a resource to the dimensions of the entity it represents, e.g., for images or cartographic resources."
+    predicate: "Bibframe:cartographicScale"
+    range: "rdfs:Literal"
+

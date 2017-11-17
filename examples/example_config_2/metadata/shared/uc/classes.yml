@@ -1,0 +1,32 @@
+#-------------------
+# Shared Class Settings
+# EXAMPLE - NOT A REAL SCHEMA
+#-------------------
+# This sections defines classes of RDF objects 
+# that are persisted in fedora but are not PCDM works. 
+# These may correspond to objects in external authorities
+# about which we want to ammend keep our own local metadata.
+# Here, we define which properties are available to each Class,
+# among other class properties. .
+
+  Agent:
+    parent: "ActiveTripes::Resource"
+    rdf_label: "::RDF::Vocab::FOAF.Agent"
+    properties: 
+      local_label:
+        definition: "If set, this is a local label for this agent to be indexed and displayed instead of any label fetched from remote authority"
+        predicate: 'skos:altLabel'
+
+  Timespan:
+    parent: "ActiveTripes::Resource"
+    rdf_label: "::RDF::Vocab::FOAF.Agent"
+    properties:
+      label:
+        definition: "A name or label for this timespan"
+        predicate: "skos:prefLabel"
+      begin:
+        definition: "The time when a time period began or commenced."
+        predicate: "edm:begin"
+      end:
+        definition: "The time when a time period ended."
+        predicate: "edm:end"

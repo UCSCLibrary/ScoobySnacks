@@ -1,0 +1,25 @@
+#-------------------
+# Work Type Settings
+# EXAMPLE - NOT A REAL SCHEMA
+#-------------------
+# Here we define metadata settings based on work type.
+# This section specifies which properties (defined above)
+# may be applied to each work type, and may specify display
+# settings such as "required" or "hidden".
+# 
+# In the future, this may be extended to actually define 
+# the work types for the application here.
+
+work_types:
+  work:
+    properties:
+      title:
+      description:
+        required: true
+      creator:
+      contributor:
+      physical_extent:
+      rights_license:
+  lecture:
+  course:
+  gdao_work:

@@ -1,0 +1,96 @@
+#-------------------
+# Other Schema Files
+#-------------------
+# This section specifies other configuration files that contain
+# metadata information. Files are loaded in order, and the 
+# directives in this file are loaded last. 
+# File paths are specified relative to the application's 'config' directory. 
+# Schema information from all files are merged together. Some options
+# may be overridden in files loaded later. 
+# Other options must be defined only once per property
+# and cannot be overwritten. These include "predicate" and "definition". 
+
+schema_files:
+  - shared_shema.yml
+
+
+
+#-------------------
+# Property Settings
+#-------------------
+# This section defines every metadata property that can be used 
+# in the system. Individual work types may override some settings 
+# defined here. Predicates for each property should be defined
+# here, and cannot be overridden once defined.
+
+properties:
+
+  call_number:
+    label: "Internal Idenfication Number"
+    usage_note: "Use this for both call numbers and GQQQWYKID numbers."
+
+  scale:
+    label: "Scale"
+    definition: "Ratio of the dimensions of a form contained or embodied in a resource to the dimensions of the entity it represents, e.g., for images or cartographic resources."
+    usage_note: "Use this for scales of maps, aerial photos, and/or scanned documents. "
+    
+    predicate: "Bibframe:cartographicScale"
+    range: "rdfs:Literal"
+
+  date_published:
+    definition: "Date of formal issuance (e.g., publication) of the resource."
+    predicate: "DC:issued"
+    range: "edm:TimeSpan"
+    label: "Date Published"
+
+    date_created:
+      required: false
+
+    source:
+      label: "Provenance / Source"
+
+#-------------------
+# Work Type Settings
+#-------------------
+# Here we define metadata settings based on work type.
+# This section specifies which properties (defined above)
+# may be applied to each work type, and may specify display
+# settings such as "required" or "hidden".
+# 
+# In the future, this may be extended to actually define 
+# the work types for the application here.
+
+
+work_types:
+  generic_work:
+    properties:
+      title:
+      description:
+        primary: true
+        required: true
+      creator:
+        primary: true
+        required: true
+      contributor:
+        primary: true
+      rights_license:
+        primary: true
+  magazine:
+    properties:
+      title:
+      description:
+        primary: true
+        required: true
+      creator:
+        primary: true
+        required: true
+      publisher:
+        primary: true
+      date_published:
+        primary: true
+      scale:
+        primary: true
+      contributor:
+        primary: true
+      rights_license:
+        primary: true

@@ -1,0 +1,20 @@
+#-------------------
+# Other Schema Files
+#-------------------
+# This section specifies other configuration files that contain
+# metadata information. Files are loaded in order, and the 
+# directives in this file are loaded last. 
+# File paths are specified relative to the application's 'config' directory. 
+# Schema information from all files are merged together. Some options
+# may be overridden in files loaded later. 
+# Other options must be defined only once per property
+# and cannot be overwritten. These include "predicate" and "definition". 
+
+schema_files:
+  - metadata/shared/uc/properties.yml
+  - metadata/shared/uc/classes.yml
+  - metadata/shared/samvera/geospatial_properties.yml
+  - metadata/local/properties.yml
+  - metadata/local/namespaces.yml
+  - metadata/local/work_types.yml
+  - metadata/local/classes.yml

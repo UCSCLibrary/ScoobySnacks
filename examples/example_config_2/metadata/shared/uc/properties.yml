@@ -1,0 +1,133 @@
+#-------------------
+# Shared Property Settings
+# EXAMPLE - NOT AN ACTUAL SCHEMA
+#-------------------
+# This section defines every metadata property that can be used 
+# in the system. Individual work types may override some settings 
+# defined here. Predicates for each property should be defined
+# here, and cannot be overridden once defined.
+
+properties: 
+
+  default:
+    multiple: true
+    required: false
+    primary: false
+    hidden: false
+    work_title: false
+    display_type: false
+    range: "rdfs:Literal"
+    facet: false
+
+  title:
+    definition: "The title of the resource."
+    usage note: "Use this only for the primary title of the resource. Other titles are put in title_alternative."
+    predicate: "DC:title"
+    label: "Title"
+    required: true
+    primary: true
+    multiple: false
+    work_title: true
+
+  title_alternative:
+    definition: "An alternative title for the resource."
+    usage note: "All titles other than the primary display title should be here"
+    predicate: "DC:alternative"
+    range: "rdfs:Literal"
+
+  creator:
+    definition: "A person or organization responsible for creating the resource."
+    usage note: "Every creator must have a name in a name authority. We have a local name authority for creators that are not in any recognized authority. Please check NAF and ULAN thoroughly before creating a new name entry in our local name authority."
+    predicate: "DC:creator"
+    range: "Agent"
+    vocabularies: "NAF, ULAN, Local"
+    primary: true
+    required: true
+    facet: true
+
+  contributor:
+    definition: "A person or organization responsible for making contributions to the resource."
+    predicate: "DC:contributor"
+    range: "Agent"
+    vocabularies: "NAF, ULAN, Local"
+    facet: true
+
+  publisher:
+    definition: "An entity responsible for making the resource available."
+    predicate: "DC:publisher"
+    range: "Agent"
+    facet: true
+
+  description:
+    definition: "A summary of the resource."
+    predicate: "DC:description"
+
+  description_contents:
+    definition: "A list of subunits of the resource."
+    predicate: "DC:tableOfContents"
+
+
+  subject:
+    definition: "The topic of the resource."
+    predicate: "DC:subject"
+    range: "skos:Concept"
+#    vocabularies: LCSH, NAF, ULAN, GNIS, AAT, Local
+    facet: true
+    primary: true
+
+  genre_form:
+    definition: "The genre, form, and/or physical characteristics of the resource being described. The material or physical carrier of the resource. Does not capture aboutness."
+    usage_note: "We only accept genre_forms in the getty Art and Architecture Thesaurus"
+    predicate: "DC:medium"
+    range: "skos:Concept"
+    vocabularies: AAT
+    facet: true
+
+  date_created: 
+    definition: "Date of creation of the resource."
+    predicate: "DC:created"
+    range: "edm:TimeSpan"
+    label: "Date Created"
+    primary: true
+    required: true
+
+  date_published:
+    definition: "Date of formal issuance (e.g., publication) of the resource."
+    predicate: "DC:issued"
+    range: "edm:TimeSpan"
+    label: "Date Published"
+
+  language:
+    definition: "A language of the resource."
+    predicate: "DC:language"
+    range: skos:concept
+
+  source:
+    definition: "Use to record and previous publication information, e.g., the place of publication and publisher name for a physical resource."
+    predicate: "DC:source"
+
+  physical_extent:
+    definition: "Physical dimensions of the source resource."
+    predicate: "DC:extent"
+
+  rights_copyright_statement:
+    definition: "Information about rights held in and over the resource."
+    predicate: "DC:rights"
+    primary: true
+    required: true
+
+  rights_status:
+    definition: "Information about who can access the resource or an indication of its security status."
+    predicate: "DC:accessRights"
+    primary: true
+    required: true
+    facet: true
+
+  rights_license:
+    definition: "An associated license for the object (i.e. Creative Commons license, software licenses, etc.)."
+    predicate: "DC:license"
+
+  related_resource:
+    definition: "A resource related to this resource in a publicly visible way"
+    predicate: "DC:relation"
+    range: RelatedResource

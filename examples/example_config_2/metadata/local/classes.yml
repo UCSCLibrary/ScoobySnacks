@@ -1,0 +1,25 @@
+#-------------------
+# Local Class Settings
+# EXAMPLE - NOT A REAL SCHEMA
+#-------------------
+# This sections defines classes of RDF objects 
+# that are persisted in fedora but are not PCDM works. 
+# These may correspond to objects in external authorities
+# about which we want to ammend keep our own local metadata.
+# Here, we define which properties are available to each Class,
+# among other class properties. .
+
+classes:
+
+  Link:
+    properties:
+      "label":
+        definition: "The title of this resource to be displayed publicly"
+        predicate: "skos:prefLabel"
+      "linked_resource_type":
+        definition: "The human-readable type of linked resource (e.g. finding aid)."
+        predicate: "ucsd:relatedType"
+      url:
+        definition: "The address of the resource to link to"
+        predicate: "schema:url"
+        range: "xsd:anyURI"

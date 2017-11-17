@@ -1,0 +1,17 @@
+#-------------------
+# Shared Geospatial Property Settings
+# EXAMPLE - NOT AN ACTUAL SCHEMA
+#-------------------
+# This section defines every metadata property that can be used 
+# in the system. Individual work types may override some settings 
+# defined here. Predicates for each property should be defined
+# here, and cannot be overridden once defined.
+
+properties:
+
+  coordinates:
+    definition: Spatial characteristics of the resource.
+    predicate: "DC:spatial"
+
+# obviously this would be more complicated in an actual schema, but hopefully you get the idea of how it might work
+

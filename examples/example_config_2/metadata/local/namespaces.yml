@@ -1,0 +1,10 @@
+#-------------------
+# RDF Namespaces
+# EXAMPLE - NOT A REAL SCHEMA
+#-------------------
+# This section defines additional namespaces for rdf predicates.
+# The most common namespaces are predefined by the system, but
+# we can define others here.
+
+namespaces:
+  edm: "http://www.europeana.eu/schemas/edm/"
