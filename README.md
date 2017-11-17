@@ -4,9 +4,9 @@ This gem is an attempt to allow administrators of Hyrax applications to define t
 
 This project is currently designed on Hyrax 1. Hyrax 2 branch shouldn't be too hard if there is interest.
 
-## Configuring the Metadata Schema
+## The Metadata Schema in Configuration Files
 
-The most important part of this gem is storing the entire metadata schema in a standardized set of configuration files that can be easily shared. It is important to start thinking together about the standards for those files, and what kind of sharing use cases we want to address.
+The most important part of this gem is storing the entire metadata schema in a standardized set of configuration files that can be easily shared. Defining standards for those files is a significant task that we should start thinking about together if we want to use this approach.
 
 Check out [this gem's wiki](https://github.com/UCSCLibrary/ScoobySnacks/wiki) for thoughts on how the metadata schema configuration files are formatted. We want feedback about how exactly this should work.
 
