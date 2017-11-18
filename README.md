@@ -6,7 +6,7 @@ This project is currently designed on Hyrax 1. Hyrax 2 branch shouldn't be too h
 
 ## The Metadata Schema in Configuration Files
 
-The most important part of this gem is storing the entire metadata schema in a standardized set of configuration files that can be easily shared. Defining standards for those files is a significant task that we should start thinking about together if we want to use this approach.
+The most important goal of this gem is to define the metadata schema entirely within a standardized set of configuration files, without hard coding any metadata information into the application itself. Defining standards for those metadata configuration files is a significant task that we should think about together if we want to use this approach.
 
 Check out [this gem's wiki](https://github.com/UCSCLibrary/ScoobySnacks/wiki) for thoughts on how the metadata schema configuration files are formatted. We want feedback about how exactly this should work.
 
