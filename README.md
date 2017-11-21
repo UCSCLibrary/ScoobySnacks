@@ -12,7 +12,7 @@ Check out [this gem's wiki](https://github.com/UCSCLibrary/ScoobySnacks/wiki) fo
 
 ## The Name 'ScoobySnacks'
 
-The name ScoobySnacks reflects the fact that this gem addresses a similar need to the 'dog-biscuits' gem, but takes a different approach. We plan to explore the possibility of merging the gems in the future, retaining the best aspects of each. 
+The name ScoobySnacks reflects the fact that this gem addresses a similar need to the ['dog-biscuits'](https://github.com/ULCC/dog_biscuits/wiki) gem, but takes a different approach. We plan to explore the possibility of merging the gems in the future, retaining the best aspects of each. 
 
 ## What works so far
 
