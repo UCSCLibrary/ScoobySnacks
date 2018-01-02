@@ -48,8 +48,8 @@ module ScoobySnacks::SolrBehavior
   end
 
   included do
-
-    # loop through all properties from all work types
+ 
+    # Loop through all properties from all work types
     ScoobySnacks::METADATA_SCHEMA['properties'].each do  |property_name, property|
       next if respond_to? property_name
       property = {} unless property.is_a? Hash
@@ -59,8 +59,9 @@ module ScoobySnacks::SolrBehavior
         solr_class = Solr::String
       when "date"
         solr_class = Solr::Date
-        else
-          solr_class = property["multiple"] == false ? Solr::String : Solr::Array 
+      else
+        is_multiple = prop['multiple'].to_s == "true" || prop['multiple'].nil? || prop['multiple'] == ""
+        solr_class = is_multiple ? Solr::String : Solr::Array 
       end
 
       # define an index attribute for the current property

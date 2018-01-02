@@ -1,18 +1,7 @@
 # This local variable hash will become our metadata schema constant
-schema = {}
+schema = YAML.load_file("#{Rails.root.to_s}/config/metadata.yml")
 
-# Load each of the metadata extensions
-# These files should not overlap, as there is no guarantee which will take precendence
-metadata_extension_dir = "#{Rails.root.to_s}/config/metadata/"
-Dir.foreach(metadata_extension_dir) do |item|
-  next if item == '.' or item == '..'
-  new_file = YAML.load_file(metadata_extension_dir + item)
-  schema = schema.deep_merge(new_file) if new_file
-end
-
-# Load primary metadata file (this file take precendence over all others)
-metadata_config = YAML.load_file("#{Rails.root.to_s}/config/metadata.yml")
-schema =  schema.deep_merge(metadata_config) unless metadata_config.nil?
+#TODO: load and merge the other schema files from "files" section
 
 #schema = schema.deep_merge(metadata_config['default']) unless metadata_config['default'].nil?
 #schema = schema.deep_merge(metadata_config[Rails.env]) unless metadata_config[Rails.env].nil?
