@@ -25,7 +25,13 @@ module ScoobySnacks::WorkModelBehavior
       end
       
       property_args = {predicate: predicate, multiple: is_multiple}
-#      property_args[:class_name] = prop['class'] unless prop['class'].nil?
+
+
+      # define controlled vocabularies
+      if prop['input'] != 'scalar' && prop['input'] != 'date'
+        self.controlled_properties << prop_name
+        property_args[:class_name] = prop['class'] unless prop['class'].nil?
+      end
 
       # Define the property and its indexing
       # unless it is already defined (e.g. in hyrax core)
@@ -35,10 +41,7 @@ module ScoobySnacks::WorkModelBehavior
         end
       end
       
-      # define controlled vocabularies
-      if prop['input'] != 'scalar' && prop['input'] != 'date'
-        self.controlled_properties << prop_name
-      end
+
 
     end #end property loop
 
