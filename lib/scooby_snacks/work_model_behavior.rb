@@ -28,7 +28,7 @@ module ScoobySnacks::WorkModelBehavior
 
 
       # define controlled vocabularies
-      if prop['input'] != 'scalar' && prop['input'] != 'date'
+      if prop['controlled'] = true
         self.controlled_properties << prop_name
         property_args[:class_name] = prop['class'] unless prop['class'].nil?
       end

@@ -24,8 +24,7 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
                                           "display_terms" => [],
                                           "required" => [],
                                           "primary" => [],
-                                          "controlled" => [],
-                                          "multi_controlled" => [],
+                                          "labels" => {}
                                          }
 
   # optionally set a special default property settings for this work type
@@ -62,6 +61,8 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
     schema["work_types"][work_type_name]["display_terms"] << property_name unless property["hidden"]
     schema["work_types"][work_type_name]["required"] << property_name if property["required"]
     schema["work_types"][work_type_name]["nested"] << property_name if property["nested"]
+    schema["work_types"][work_type_name]["labels"][property["label"]] = property_name if property["label"]
+    property["controlled"] = true if  property['input'] != 'scalar' && property['input'] != 'date'
 #    schema["work_types"][work_type_name]["inputs"][property["input"]] << property_name unless property["input"].nil?
 
     #predicate management
