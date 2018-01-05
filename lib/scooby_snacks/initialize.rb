@@ -37,9 +37,9 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
   # to avoid having to loop through properties a bunch of times every page load
   work_type["properties"] ||= {}
   
-  work_type["properties"].except("default").each do |property_name, property|
+  work_type["properties"].except("default").each do |property_name, wt_property|
     next if schema['properties'][property_name].nil?
-    property ||= {}
+    property  = wt_property || {}
 
     # merge in the settings from the generic property definition 
     property = schema['properties'][property_name].deep_merge(property)
@@ -62,7 +62,7 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
     schema["work_types"][work_type_name]["required"] << property_name if property["required"]
     schema["work_types"][work_type_name]["nested"] << property_name if property["nested"]
     schema["work_types"][work_type_name]["labels"][property["label"]] = property_name if property["label"]
-    property["controlled"] = true if  property['input'] != 'scalar' && property['input'] != 'date'
+    property["controlled"] = true if property['input'] != 'scalar' && property['input'] != 'date'
 #    schema["work_types"][work_type_name]["inputs"][property["input"]] << property_name unless property["input"].nil?
 
     #predicate management

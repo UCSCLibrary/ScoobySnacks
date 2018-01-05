@@ -69,8 +69,7 @@ module ScoobySnacks::SolrBehavior
       
       # additionally, define a corresponding label attribute 
       # if the property uses a controlled input field
-      if property.key?('input') && 
-         property['input'].include?("controlled")
+      if property["controlled"].to_s == "true"
         attribute (property_name+'_label').to_sym, solr_class, solr_name(property_name+'_label') 
       end
 
