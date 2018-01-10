@@ -60,13 +60,16 @@ module ScoobySnacks::SolrBehavior
       when "date"
         solr_class = Solr::Date
       else
-        is_multiple = prop['multiple'].to_s == "true" || prop['multiple'].nil? || prop['multiple'] == ""
-        solr_class = is_multiple ? Solr::String : Solr::Array 
+        is_multiple = property['multiple'].to_s == "true" || property['multiple'].nil? || property['multiple'] == ""
+        solr_class = is_multiple ?  Solr::Array : Solr::String
       end
 
       # define an index attribute for the current property
       attribute property_name.to_sym, solr_class, solr_name(property_name)
       
+
+      
+
       # additionally, define a corresponding label attribute 
       # if the property uses a controlled input field
       if property["controlled"].to_s == "true"
