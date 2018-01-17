@@ -62,7 +62,12 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
     schema["work_types"][work_type_name]["required"] << property_name if property["required"]
     schema["work_types"][work_type_name]["nested"] << property_name if property["nested"]
     schema["work_types"][work_type_name]["labels"][property["label"]] = property_name if property["label"]
-    property["controlled"] = true if property['input'] != 'scalar' && property['input'] != 'date'
+
+    # if the property is controlled, mark it as so
+    unless ['scalar','date'].include?(property["input"]) || property["controlled"] == "false"
+      property["controlled"] = true 
+      schema["properties"][property_name]["controlled"] = true
+    end
 #    schema["work_types"][work_type_name]["inputs"][property["input"]] << property_name unless property["input"].nil?
 
     #predicate management

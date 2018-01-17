@@ -47,6 +47,7 @@ module ScoobySnacks::SolrBehavior
     end
   end
 
+
   included do
  
     # Loop through all properties from all work types
@@ -66,10 +67,7 @@ module ScoobySnacks::SolrBehavior
 
       # define an index attribute for the current property
       attribute property_name.to_sym, solr_class, solr_name(property_name)
-      
-
-      
-
+           
       # additionally, define a corresponding label attribute 
       # if the property uses a controlled input field
       if property["controlled"].to_s == "true"
@@ -77,6 +75,6 @@ module ScoobySnacks::SolrBehavior
       end
 
     end
-    
+
   end
 end
