@@ -6,6 +6,7 @@ module ScoobySnacks::PresenterBehavior
       next if respond_to? property_name
       next if property["hidden"]
       delegate property_name.to_sym, to: :solr_document
+      delegate "#{property_name}_label".to_sym, to: :solr_document
     end
     end
 end
