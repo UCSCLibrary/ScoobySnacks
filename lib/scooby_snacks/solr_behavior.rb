@@ -74,6 +74,19 @@ module ScoobySnacks::SolrBehavior
         attribute (property_name+'_label').to_sym, solr_class, solr_name(property_name+'_label') 
       end
 
+      if property["DPLA"]
+        dpla = property["DPLA"].split(":")
+        schema = dpla.first.downcase
+        element = dpla.last
+        if property["controlled"].to_s == "true"
+          slr_name = solr_name(property_name+"_label")
+        else
+          slr_name = solr_name(property_name)
+        end
+        if schema == "dc"
+          field_semantics.merge!(element => slr_name)
+        end
+      end
     end
 
   end
