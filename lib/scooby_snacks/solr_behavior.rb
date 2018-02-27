@@ -47,7 +47,6 @@ module ScoobySnacks::SolrBehavior
     end
   end
 
-
   included do
  
     # Loop through all properties from all work types
@@ -74,8 +73,8 @@ module ScoobySnacks::SolrBehavior
         attribute (property_name+'_label').to_sym, solr_class, solr_name(property_name+'_label') 
       end
 
-      if property["DPLA"]
-        dpla = property["DPLA"].split(":")
+      if property["OAI"]
+        dpla = property["OAI"].split(":")
         schema = dpla.first.downcase
         element = dpla.last
         if property["controlled"].to_s == "true"
