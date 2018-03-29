@@ -12,6 +12,11 @@ module ScoobySnacks::SolrBehavior
     def solr_name(*args)
       Solrizer.solr_name(*args)
     end
+
+    def add_field_semantics(label,solr_name)
+      field_semantics.merge!(label => Array.wrap(solr_name)) {|key, old_val, new_val| Array.wrap(old_val) + Array.wrap(new_val)}
+    end
+
   end
 
 
@@ -48,7 +53,7 @@ module ScoobySnacks::SolrBehavior
   end
 
   included do
- 
+
     # Loop through all properties from all work types
     ScoobySnacks::METADATA_SCHEMA['properties'].each do  |property_name, property|
       next if respond_to? property_name
@@ -83,10 +88,9 @@ module ScoobySnacks::SolrBehavior
           slr_name = solr_name(property_name)
         end
         if schema == "dc"
-          field_semantics.merge!(element => slr_name)
+          add_field_semantics(element,slr_name)
         end
       end
     end
-
   end
 end
