@@ -5,6 +5,9 @@ module ScoobySnacks::WorkModelBehavior
   extend ActiveSupport::Concern
 
   included do
+
+    # Special hidden property to store the last reconciliation date
+    property :last_reconciled, predicate: ::RDF::Vocab::XHTML.index, multiple: false
     
     id_blank = proc { |attributes| attributes[:id].blank? }
     class_attribute :controlled_properties
@@ -41,15 +44,11 @@ module ScoobySnacks::WorkModelBehavior
         end
       end
       
-
-
     end #end property loop
 
-
     self.controlled_properties.each do |property|
-      accepts_nested_attributes_for property.to_sym, reject_if: id_blank, allow_destroy: true              
+      accepts_nested_attributes_for property.to_sym, reject_if: id_blank, allow_destroy: true
     end
-
 
     # used by Hyrax, I think
     # (taken from Hyrax::BasicMetadata)

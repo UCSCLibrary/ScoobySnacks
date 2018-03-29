@@ -3,13 +3,7 @@ module ScoobySnacks
     
     def self.add_index_fields(config)
       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
-
         next unless prop["search_result_display"].to_s != "false"
-
-#        config.add_index_field self.prop_solr_name(prop_name, prop), self.get_index_options(prop_name, prop)
-#        config.add_index_field self.prop_solr_name(prop_name, prop)
-        Rails.logger.error "ZZname: #{prop_solr_name(prop_name, prop)}"
-#        config.add_index_field prop_solr_name(prop_name, prop), self.get_index_options(prop_name, prop)
         config.add_index_field prop_solr_name(prop_name, prop), self.get_index_options(prop_name, prop)
       end
     end
