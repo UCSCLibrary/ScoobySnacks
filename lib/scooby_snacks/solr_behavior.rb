@@ -52,7 +52,10 @@ module ScoobySnacks::SolrBehavior
     end
   end
 
+
   included do
+
+    attribute :last_reconciled, Solr::Date, solr_name("last_reconciled")
 
     # Loop through all properties from all work types
     ScoobySnacks::METADATA_SCHEMA['properties'].each do  |property_name, property|
