@@ -1,6 +1,48 @@
 module ScoobySnacks
   class BlacklightConfiguration
     
+    def self.add_all_fields(config)
+      self.add_show_fields(config)
+      self.add_search_fields(config)
+      self.add_facet_fields(config)
+      self.add_sort_fields(config)
+      self.add_index_fields(config)
+    end
+
+    def self.add_show_fields(config)
+       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
+        next unless prop["search_result_display"].to_s != "false"
+        config.add_show_field prop_solr_name(prop_name, prop), label: prop["label"]
+      end
+    end
+
+    def self.add_search_fields(config)
+       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
+        next unless prop["search_field"].to_s == "true"
+        config.add_search_field(prop_name) do |field|
+          field.solr_local_parameters = {
+            qf: prop_solr_name(prop_name, prop),
+            pf: prop_solr_name(prop_name, prop)
+          }
+        end
+      end
+    end
+
+    def self.add_facet_fields(config)
+       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
+        next unless prop["facet"].to_s == "true"
+        config.add_facet_field prop_solr_name(prop_name, prop, :facetable), label: prop["label"], limit: prop["facet_limit"]
+      end
+    end
+
+    def self.add_sort_fields(config)
+       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
+        next unless prop["sort_field"].to_s == true
+        config.add_sort_field "#{prop_name} desc", label: "#{prop["label"].downcase} \u25BC"
+        config.add_sort_field "#{prop_name} asc", label: "#{prop["label"].downcase} \u25B2"
+      end
+    end
+
     def self.add_index_fields(config)
       ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
         next unless prop["search_result_display"].to_s != "false"
@@ -8,11 +50,16 @@ module ScoobySnacks
       end
     end
 
-    def self.prop_solr_name prop_name, prop
-      if prop["vocabularies"].nil? && prop["vocabulary"].nil?
-        prop_solr_name = Solrizer.solr_name(prop_name)
+    def self.prop_solr_name prop_name, prop, type = false
+      
+      unless prop["vocabularies"].nil? && prop["vocabulary"].nil?
+        prop_name += "_label"
+      end
+
+      if type
+        prop_solr_name = Solrizer.solr_name(prop_name, type)
       else
-        prop_solr_name = Solrizer.solr_name(prop_name + "_label")
+        prop_solr_name = Solrizer.solr_name(prop_name)
       end
     end
 
