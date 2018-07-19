@@ -24,6 +24,16 @@ module ScoobySnacks::WorkFormBehavior
       @primary_terms = pt
     end
 
+    def self.build_permitted_params
+      params = super
+      ScoobySnacks::METADATA_SCHEMA['work_types'][self.model_class.to_s.downcase]["controlled"].each do |property_name|
+        params << {"#{property_name}_attributes".to_sym => [:id, :_destroy]}
+      end
+      puts "TEST MOTEHRFAKJ"
+      Rails.logger.error('TEST MOOOSJA')
+      return params
+    end
+
 
   end
 end

@@ -21,6 +21,7 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
   work_type = {} unless work_type.is_a? Hash
   schema['work_types'][work_type_name] = {"properties" => {},
 #                                          "inputs" => {},
+                                          "controlled" => [],
                                           "display_terms" => [],
                                           "required" => [],
                                           "primary" => [],
@@ -55,19 +56,21 @@ schema['work_types'].except("default").each do |work_type_name, work_type|
     # change the clearer "faceted => true" to the more functional "render_as => faceted"
     property["render_as"] = "faceted" if !property.key?("render_as") && property["facet"]
 
-    
-    # populate useful auxiliary collections of terms
-    schema["work_types"][work_type_name]["primary"] << property_name if property["primary"]
-    schema["work_types"][work_type_name]["display_terms"] << property_name unless property["hidden"]
-    schema["work_types"][work_type_name]["required"] << property_name if property["required"]
-    schema["work_types"][work_type_name]["nested"] << property_name if property["nested"]
-    schema["work_types"][work_type_name]["labels"][property["label"]] = property_name if property["label"]
 
     # if the property is controlled, mark it as so
     unless ['scalar','date'].include?(property["input"]) || property["controlled"] == "false"
       property["controlled"] = true 
       schema["properties"][property_name]["controlled"] = true
     end
+    
+    # populate useful auxiliary collections of terms
+    schema["work_types"][work_type_name]["primary"] << property_name if property["primary"]
+    schema["work_types"][work_type_name]["controlled"] << property_name if property["controlled"]
+    schema["work_types"][work_type_name]["display_terms"] << property_name unless property["hidden"]
+    schema["work_types"][work_type_name]["required"] << property_name if property["required"]
+    schema["work_types"][work_type_name]["nested"] << property_name if property["nested"]
+    schema["work_types"][work_type_name]["labels"][property["label"]] = property_name if property["label"]
+
 #    schema["work_types"][work_type_name]["inputs"][property["input"]] << property_name unless property["input"].nil?
 
     #predicate management
