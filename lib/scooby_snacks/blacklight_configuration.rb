@@ -31,7 +31,7 @@ module ScoobySnacks
     def self.add_facet_fields(config)
        ScoobySnacks::METADATA_SCHEMA["properties"].each do |prop_name, prop|
         next unless prop["facet"].to_s == "true"
-        config.add_facet_field prop_solr_name(prop_name, prop, :facetable), label: prop["label"], limit: prop["facet_limit"]
+        config.add_facet_field prop_solr_name(prop_name, prop), label: prop["label"], limit: prop["facet_limit"]
       end
     end
 
@@ -56,6 +56,8 @@ module ScoobySnacks
         prop_name += "_label"
       end
 
+      type = :facetable if prop["facetable"]
+
       if type
         prop_solr_name = Solrizer.solr_name(prop_name, type)
       else
@@ -72,7 +74,7 @@ module ScoobySnacks
         options[:helper_method] = prop["index_helper_method"].to_sym if !prop["index_helper_method"].nil?
 
         # link to facet search if facetable
-        options[:link_to_search] = Solrizer.solr_name(prop_name, :facetable) if prop["facet"].to_s == "true"
+        options[:link_to_search] = prop_solr_name(prop_name, prop) if prop["facet"].to_s == "true"
         return options
     end
 
