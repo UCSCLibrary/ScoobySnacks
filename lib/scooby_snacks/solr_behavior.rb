@@ -55,45 +55,17 @@ module ScoobySnacks::SolrBehavior
 
   included do
 
+
     attribute :last_reconciled, Solr::Date, solr_name("last_reconciled")
 
     # Loop through all properties from all work types
-    ScoobySnacks::METADATA_SCHEMA['properties'].each do  |property_name, property|
-      next if respond_to? property_name
-      property = {} unless property.is_a? Hash
-        
-      case property["range"] 
-      when "string"
-        solr_class = Solr::String
-      when "date"
-        solr_class = Solr::Date
-      else
-        is_multiple = property['multiple'].to_s == "true" || property['multiple'].nil? || property['multiple'] == ""
-        solr_class = is_multiple ?  Solr::Array : Solr::String
-      end
-
+    ScoobySnacks::METADATA_SCHEMA.fields.values.each do |field|
+      next if respond_to? field.name
       # define an index attribute for the current property
-      attribute property_name.to_sym, solr_class, solr_name(property_name)
+      attribute field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_search_name
            
-      # additionally, define a corresponding label attribute 
-      # if the property uses a controlled input field
-      if property["controlled"].to_s == "true"
-        attribute (property_name+'_label').to_sym, solr_class, solr_name(property_name+'_label') 
-      end
-
-      if property["OAI"]
-        dpla = property["OAI"].split(":")
-        schema = dpla.first.downcase
-        element = dpla.last
-        if property["controlled"].to_s == "true"
-          slr_name = solr_name(property_name+"_label")
-        else
-          slr_name = solr_name(property_name)
-        end
-        if schema == "dc"
-          add_field_semantics(element,slr_name)
-        end
-      end
+      add_field_semantics(field.oai_element, field.solr_search_name) if (field.oai? && field.oai_ns == 'dc')
     end
   end
 end
+

@@ -19,14 +19,14 @@
 
 
 #-------------------
-# Property Settings
+# Field Settings
 #-------------------
 # This section defines every metadata property that can be used 
 # in the system. Individual work types may override some settings 
 # defined here. Predicates for each property should be defined
 # here, and cannot be overridden once defined.
 
-properties:
+fields:
 
   default:
     definition: "This property has not yet been documented."
