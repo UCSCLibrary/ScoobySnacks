@@ -4,6 +4,8 @@ This gem is an attempt to allow administrators of Hyrax applications to define t
 
 This project is currently designed on Hyrax 2.0. 
 
+The documentation for this gem is currently outdated. Some major updates to both the gem and the documentation are expected in Spring 2019.
+
 ## The Metadata Schema in Configuration Files
 
 The most important goal of this gem is to define the metadata schema entirely within a standardized set of configuration files, without hard coding any metadata information into the application itself. Defining standards for those metadata configuration files is a significant task that we should think about together if we want to use this approach.
