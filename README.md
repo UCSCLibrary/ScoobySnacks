@@ -2,7 +2,7 @@
 
 This gem is an attempt to allow administrators of Hyrax applications to define their entire metadata schema in a configuration file (or files). My hope is that this will encourage clear communication about metadata practices, help us share metadata profiles between institutions, and allow metadata librarians to control the application metadata schema without developer mediation. 
 
-This project is currently designed on Hyrax 1. Hyrax 2 branch shouldn't be too hard if there is interest.
+This project is currently designed on Hyrax 2.0. 
 
 ## The Metadata Schema in Configuration Files
 
