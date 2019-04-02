@@ -1,6 +1,8 @@
 require "scooby_snacks/version"
 
 module ScoobySnacks
+  require 'scooby_snacks/metadata_schema'
+  require 'scooby_snacks/field'
   require 'scooby_snacks/presenter_behavior'
   require 'scooby_snacks/solr_behavior'
   require 'scooby_snacks/work_form_behavior'

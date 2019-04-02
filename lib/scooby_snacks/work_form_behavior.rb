@@ -2,35 +2,24 @@ module ScoobySnacks::WorkFormBehavior
   extend ActiveSupport::Concern  
   included do
     
-    work_type_attributes = ScoobySnacks::METADATA_SCHEMA['work_types'][self.model_class.to_s.downcase]
-
     self.terms = []
-    work_type_attributes["display_terms"].each do |property_name|
-      self.terms << property_name.to_sym
-      delegate property_name.to_sym, to: :solr_document
+    ScoobySnacks::METADATA_SCHEMA.display_field_names.each do |field_name|
+      puts "TERM: #{field_name}"
+      self.terms << field_name.to_sym
+      delegate field_name.to_sym, to: :solr_document
     end
 
-    self.required_fields = []
-    work_type_attributes["required"].each do |property_name|
-      self.required_fields << property_name.to_sym
-    end  
+    self.required_fields = ScoobySnacks::METADATA_SCHEMA.required_field_names.map{|name| name.to_sym}
     
     def primary_terms 
-      return @primary_terms if !@primary_terms.nil?
-      pt = []
-      ScoobySnacks::METADATA_SCHEMA['work_types'][self.model_class.to_s.downcase]["primary"].each do |property_name|
-        pt << property_name.to_sym
-      end
-      @primary_terms = pt
+      @primary_terms ||=  ScoobySnacks::METADATA_SCHEMA.primary_display_field_names.map{|name| name.to_sym}
     end
 
     def self.build_permitted_params
-      params = super
-      ScoobySnacks::METADATA_SCHEMA['work_types'][self.model_class.to_s.downcase]["controlled"].each do |property_name|
-        params << {"#{property_name}_attributes".to_sym => [:id, :_destroy]}
+      permitted = super
+      ScoobySnacks::METADATA_SCHEMA.controlled_field_names.each do |field_name|
+        permitted << {"#{field_name}_attributes".to_sym => [:id, :_destroy]}
       end
-      puts "TEST MOTEHRFAKJ"
-      Rails.logger.error('TEST MOOOSJA')
       return params
     end
 
