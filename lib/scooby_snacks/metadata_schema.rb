@@ -26,13 +26,14 @@ module ScoobySnacks
 
         field = raw_fields['default'].deep_merge(field) 
         @label_map[field['label']] = field_name if field['label']
-        if field['input'].to_s.include? "controlled" || field['controlled'].to_s == "true"
+
+        if (field['controlled'].to_s == "true") ||
+           (field['input'].to_s.include? "controlled") ||
+           (field['vocabularies'].is_a?(Array) && !field['vocabularies'].empty?) ||
+           (field['vocabulary'].is_a?(Hash) && !field['vocabulary'].empty?)
           @controlled_field_names << field_name
           field["controlled"] = true 
         end
-
-
-#        puts "FIELD THINGY: #{field_name}"
 
         unless field['hidden'].to_s == "true"
           @primary_display_field_names << field_name if field['primary'].to_s == "true"
