@@ -10,25 +10,10 @@ module ScoobySnacks::WorkModelBehavior
     property :last_reconciled, predicate: ::RDF::Vocab::XHTML.index, multiple: false
     
     id_blank = proc { |attributes| attributes[:id].blank? }
-    class_attribute :controlled_properties
-    self.controlled_properties = []
-    
 
-    def to_csv
-      
-    end
+    schema = ScoobySnacks::METADATA_SCHEMA
 
-    def csv_header
-      
-    end
-    
-    ScoobySnacks::METADATA_SCHEMA.fields.each do |field_name, field|
-
-      # define controlled vocabularies
-      if field.controlled?
-        self.controlled_properties << field.name
-      end
-      
+    schema.fields.each do |field_name, field|
       # Define the property and its indexing
       # unless it is already defined (e.g. in hyrax core)
       unless respond_to? field.name.to_sym
@@ -36,11 +21,10 @@ module ScoobySnacks::WorkModelBehavior
           index.as :stored_searchable
         end
       end
-      
     end #end fields loop
 
-    self.controlled_properties.each do |property|
-      accepts_nested_attributes_for property.to_sym, reject_if: id_blank, allow_destroy: true
+    schema.controlled_field_names.each do |field_name|
+      accepts_nested_attributes_for field_name.to_sym, reject_if: id_blank, allow_destroy: true
     end
 
     # used by Hyrax, I think
@@ -51,5 +35,6 @@ module ScoobySnacks::WorkModelBehavior
     property :import_url, predicate: ::RDF::URI.new('http://scholarsphere.psu.edu/ns#importUrl'), multiple: false
     
   end
+
 end
 
