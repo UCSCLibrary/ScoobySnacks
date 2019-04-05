@@ -58,11 +58,11 @@ module ScoobySnacks
     end
 
     def controlled?
-      @controlled ||= (@raw_array['input'].to_s.include? "controlled")
+      @controlled ||= ScoobySnacks::METADATA_SCHEMA.controlled_field_names.include?(name)
     end
 
     def multiple?
-      @multiple ||= (@raw_array['search_result_display'].to_s != "false")
+      @multiple ||= (@raw_array['multiple'].to_s != "false")
     end
 
     def facet_limit 
