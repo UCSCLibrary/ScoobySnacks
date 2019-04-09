@@ -116,5 +116,9 @@ module ScoobySnacks
       @raw_array['vocabularies'] || [@raw_array['vocabulary']]
     end
 
+    def primary_vocabulary
+      vocabularies.first
+    end
+
   end
 end

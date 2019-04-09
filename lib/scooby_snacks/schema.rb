@@ -78,7 +78,7 @@ module ScoobySnacks
     end
 
     def get_field(name)
-      @fields[name] || @fields[@label_map[name]]
+      @fields[name.to_s] || @fields[@label_map[name.to_s]]
     end
 
   end
