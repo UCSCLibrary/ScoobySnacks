@@ -2,7 +2,7 @@ module ScoobySnacks
   class MetadataSchema
 
     attr_accessor :metadata_config_path
-    attr_reader :fields, :label_map, :controlled_field_names, :index_field_names, :sort_field_names, :search_field_names, :facet_field_names, :required_field_names, :primary_display_field_names, :secondary_display_field_names, :tertiary_display_field_names
+    attr_reader :fields, :label_map, :controlled_field_names, :index_field_names, :sortable_field_names, :searchable_field_names, :facet_field_names, :required_field_names, :primary_display_field_names, :secondary_display_field_names, :admin_only_display_field_names, :full_text_searchable_field_names, :work_title_field_name
     
     def initialize (metadata_config_path = nil)
 
@@ -17,11 +17,14 @@ module ScoobySnacks
       @controlled_field_names = []
       @primary_display_field_names = []
       @secondary_display_field_names = []
-      @tertiary_display_field_names = []
+      @admin_only_display_field_names = []
       @index_field_names = []
-      @sort_field_names = []
+      @sortable_field_names = []
       @facet_field_names = []
-      @search_field_names = []
+      @searchable_field_names = []
+      @full_text_searchable_field_names = []
+      @primary_editor_field_names = []
+
       raw_fields.except('default').each do |field_name, field| 
 
         field = raw_fields['default'].deep_merge(field) 
@@ -35,22 +38,32 @@ module ScoobySnacks
           field["controlled"] = true 
         end
 
+        #the following is currently pretty application specific for UCSC.
+        # we should add a handle and put this code in our hyrax app.
         unless field['hidden'].to_s == "true"
+          # if an optional "primary" flag is set, include it in the primary display group
           @primary_display_field_names << field_name if field['primary'].to_s == "true"
-          case field['display_area']
-          when 'primary', 'work_title'
+          case field['display_group'].underscore.downcase
+          when 'primary'
             @primary_display_field_names << field_name unless @primary_display_field_names.include?(field_name)
-          when 'more', 'brief'
+          when 'work_title'
+            @primary_display_field_names << field_name unless @primary_display_field_names.include?(field_name)
+            @work_title_field_name = field_name
+          when 'more', 'brief', 'secondary'
             @secondary_display_field_names << field_name
-          when 'staff'
-            @tertiary_display_field_names << field_name
+          when 'staff', 'staff_only', 'admin', 'admin_only', 'tertiary'
+            @admin_only_display_field_names << field_name
+          when 'editor_primary', 'primary_editor'
+            @primary_editor_field_names << field_name
           end
         end
-        @required_field_names << field_name if field['required'].to_s == "true"
-        @index_field_names << field_name if field['search_result_display'].to_s != "false"
-        @facet_field_names << field_name if field['facet'].to_s != "false"
-        @search_field_names << field_name if field['search_field'].to_s != "false"
-        @sort_field_names << field_name if field['sort_field'].to_s == "true"
+        @work_title_field_name = field_name if field['work_title'].to_s.downcase == "true"
+        @required_field_names << field_name if field['required'].to_s.downcase == "true"
+        @index_field_names << field_name if field['search_result_display'].to_s.downcase == "true"
+        @facet_field_names << field_name if field['facet'].to_s.downcase == "true"
+        @searchable_field_names << field_name if field['searchable_field'].to_s.downcase == "true"
+        @full_text_searchable_field_names << field_name if field['full_text_searchable'].to_s.downcase == "true"
+        @sortable_field_names << field_name if field['sortable'].to_s.downcase == "true"
 
         #predicate management
         raise ArgumentError.new("predicate required") if field["predicate"].nil?
@@ -67,11 +80,18 @@ module ScoobySnacks
           field['rdf_namespace'] = ns_prefix
         end
 
-#        puts "adding field: #{field_name}"
-
         @fields[field_name] = ScoobySnacks::Field.new(field_name,field)
 
       end
+    end
+
+    # Some fields may be marked primary, but only for the editor
+    def primary_editor_field_names
+      (@primary_display_field_names + @primary_editor_field_names + @required_field_names).uniq
+    end
+
+    def secondary_editor_field_names
+      all_field_names - primary_editor_field_names
     end
 
     def all_field_names
@@ -79,19 +99,44 @@ module ScoobySnacks
     end
 
     def display_field_names
-      primary_display_field_names + secondary_display_field_names + tertiary_display_field_names
+      primary_display_field_names + secondary_display_field_names + admin_only_display_field_names
     end
 
     def display_fields
       display_field_names.map{|name| get_field(name) }
     end
 
-    def sort_fields
-      sort_field_names.map{|name| get_field(name) }
+    def sortable_fields
+      sortable_field_names.map{|name| get_field(name) }
     end
 
-    def search_fields
-      search_field_names.map{|field_name| get_field(field_name) }
+    def controlled? field_name
+      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
+      schema.searchable_field_names.include?(field_name)
+    end
+
+    def searchable? field_name
+      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
+      schema.searchable_field_names.include?(field_name)
+    end
+
+    def sortable? field_name
+      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
+      schema.sortable_field_names.include?(field_name)
+    end
+
+    def index? field_name
+      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
+      schema.index_field_names.include?(field_name)
+    end
+
+    def facet? field_name
+      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
+      schema.facet_field_names.include?(field_name)
+    end
+
+    def searchable_fields
+      searchable_field_names.map{|field_name| get_field(field_name) }
     end
 
     def required_fields
@@ -100,6 +145,22 @@ module ScoobySnacks
 
     def controlled_fields
       controlled_field_names.map{|field_name| get_field(field_name) }
+    end
+
+    def default_text_search_solrized_field_names
+      # Include all fields marked for full text search that are also individual search fields
+      # data frin the rest of the marked fields will be included in the full text field
+      field_names = (full_text_searchable_field_names & searchable_field_names)
+      field_names = field_names.map{|field_name| get_field(field_name).solr_search_name }
+      field_names + [full_text_field_name]
+    end
+
+    def full_text_field_name
+      "all_text_timv"
+    end
+
+    def full_text_searchable_fields
+      full_text_searchable_field_names.map{|field_name| get_field(field_name) }
     end
 
     def index_fields

@@ -20,8 +20,10 @@ module ScoobySnacks
     end
 
     def self.add_search_fields(config)
-      self.schema.search_fields.each do |field|
+      self.schema.searchable_fields.each do |field|
+        Rails.logger.info "Adding search field: #{field.label} with solr name: #{field.solr_search_name}"
         config.add_search_field(field.name) do |new_field|
+          new_field.label = field.label
           new_field.solr_local_parameters = {
             qf: field.solr_search_name,
             pf: field.solr_search_name
@@ -32,27 +34,27 @@ module ScoobySnacks
  
     def self.add_facet_fields(config)
        self.schema.facet_fields.each do |field|
-
          config.add_facet_field field.solr_facet_name, {label: field.label, limit: field.facet_limit}
       end
     end
  
     def self.add_sort_fields(config)
-       self.schema.sort_fields.each do |field|
+       self.schema.sortable_fields.each do |field|
          config.add_sort_field field.solr_sort_name, label: field.label
       end
     end
 
     def self.add_index_fields(config)
        self.schema.index_fields.each do |field|
-         config.add_index_field field.solr_search_name, self.get_index_options(field)
+        Rails.logger.info "Adding index field: #{field.name} with solr name: #{field.solr_search_name} and options: #{self.get_index_options(field).inspect}"
+         config.add_index_field(field.solr_search_name, self.get_index_options(field))
       end
     end
 
     def self.get_index_options field
         options = {}
-        options[:label] =  field.label
-        options[:itemprop] = field.itemprop if field.itemprop
+        options[:label] =  field.label || field.name
+        options[:index_itemprop] = field.itemprop if field.itemprop
         options[:helper_method] = field.helper_method if field.helper_method
         options[:link_to_search] = field.solr_search_name if field.search?
         return options

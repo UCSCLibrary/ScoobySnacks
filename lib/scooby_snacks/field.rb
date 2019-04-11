@@ -4,7 +4,7 @@ module ScoobySnacks
     attr_reader :name, :label, :oai_element, :oai_ns
 
     def solr_search_name
-      return false unless index?
+      #return false unless index?
       @solr_search_name ||= Solrizer.solr_name(name)
     end
 
@@ -29,36 +29,32 @@ module ScoobySnacks
       end
     end
 
-    def index?
-      @index ||= (@raw_array['strored'].to_s == "true")
-    end
-
-    def sort?
-      @sort ||= (@raw_array['sort_field'].to_s == "true")
+    def schema
+      ScoobySnacks::METADATA_SCHEMA
     end
 
     def facet?
-      @facet ||= (@raw_array['facet'].to_s == "true")
+      @facet ||= schema.facetable? name
     end
 
     def search?
-      @search ||= (@raw_array['search_field'].to_s == "true")
+      @search ||= schema.searchable? name
     end
 
     def sort?
-      @sort ||= (@raw_array['sort_field'].to_s == "true")
+      @sort ||= schema.sortable? name
     end
 
     def index? 
-      @index ||= (@raw_array['search_result_display'].to_s == "true")
+      @index ||= schema.index? name
     end
 
     def date?
-      @date ||= (@raw_array['input'].to_s.include? "date")
+      @date ||= (@raw_array['input'].to_s.downcase.include? "date") || (@raw_array['data_type'].to_s.downcase.include? "date")  
     end
 
     def controlled?
-      @controlled ||= ScoobySnacks::METADATA_SCHEMA.controlled_field_names.include?(name)
+      @controlled ||= schema.controlled? name
     end
 
     def multiple?
@@ -70,7 +66,11 @@ module ScoobySnacks
     end
 
     def itemprop
-      @raw_array['itemprop']
+      @raw_array['index_itemprop'] || @raw_array['itemprop']
+    end
+
+    def index_itemprop
+      itemprop
     end
 
     def predicate_name
@@ -89,7 +89,8 @@ module ScoobySnacks
     end
 
     def helper_method
-      @raw_array['index_helper_method'].to_sym if @raw_array['index_helper_method']
+      method_name = (@raw_array['index_helper_method'] || @raw_array['helper_method'])
+      method_name.to_sym unless method_name.nil?
     end
 
     def rdf_namespace

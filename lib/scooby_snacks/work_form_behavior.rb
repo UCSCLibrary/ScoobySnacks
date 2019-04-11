@@ -12,7 +12,11 @@ module ScoobySnacks::WorkFormBehavior
     self.required_fields = ScoobySnacks::METADATA_SCHEMA.required_field_names.map{|name| name.to_sym}
     
     def primary_terms 
-      @primary_terms ||=  ScoobySnacks::METADATA_SCHEMA.primary_display_field_names.map{|name| name.to_sym}
+      @primary_terms ||=  ScoobySnacks::METADATA_SCHEMA.primary_editor_field_names.map{|name| name.to_sym}
+    end
+
+    def secondary_terms 
+      @primary_terms ||=  ScoobySnacks::METADATA_SCHEMA.secondary_editor_field_names.map{|name| name.to_sym}
     end
 
     def self.build_permitted_params
