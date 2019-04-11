@@ -34,7 +34,7 @@ module ScoobySnacks
     end
 
     def facet?
-      @facet ||= schema.facetable? name
+      @facet ||= schema.facet? name
     end
 
     def search?
