@@ -1,182 +1,169 @@
 module ScoobySnacks
   class MetadataSchema
 
-    attr_accessor :metadata_config_path
-    attr_reader :fields, :label_map, :controlled_field_names, :index_field_names, :sortable_field_names, :searchable_field_names, :facet_field_names, :required_field_names, :primary_display_field_names, :secondary_display_field_names, :admin_only_display_field_names, :full_text_searchable_field_names, :work_title_field_name
+    attr_reader :fields, :namespaces
     
-    def initialize (metadata_config_path = nil)
+    SS_BOOLEAN_ATTRIBUTES = [:facet,
+                             :searchable,
+                             :sortable,
+                             :multiple, 
+                             :full_text_searchable,
+                             :required,
+                             :work_title, 
+                             :hidden,
+                             :stored_in_solr,
+                             :controlled]
+    SS_STRING_ATTRIBUTES = [:facet_limit, 
+                            :helper_method, 
+                            :input, 
+                            :definition]
 
-      @metadata_config_path = metadata_config_path || "#{Rails.root.to_s}/config/metadata.yml"
-      raw_schema = YAML.load_file("#{Rails.root.to_s}/config/metadata.yml")
+    SS_DISPLAY_GROUPS = [:primary,
+                         :secondary, 
+                         :search_result, 
+                         :editor_primary]
 
-      raw_fields = raw_schema['fields'] || raw_schema['properties']
+    # override this locally to define app-specific attributes
+    def self.custom_boolean_attributes
+      []
+    end
+    
+    # override this locally to define app-specific attributes
+    def self.custom_string_attributes
+      []
+    end
 
-      @label_map = {}
-      @fields = {}
-      @required_field_names = []
-      @controlled_field_names = []
-      @primary_display_field_names = []
-      @secondary_display_field_names = []
-      @admin_only_display_field_names = []
-      @index_field_names = []
-      @sortable_field_names = []
-      @facet_field_names = []
-      @searchable_field_names = []
-      @full_text_searchable_field_names = []
-      @primary_editor_field_names = []
+    # override this locally to define app-specific display groups
+    def self.custom_display_groups
+      []
+    end
 
-      raw_fields.except('default').each do |field_name, field| 
+    def self.boolean_attributes
+      SS_BOOLEAN_ATTRIBUTES + custom_boolean_attributes
+    end
 
-        field = raw_fields['default'].deep_merge(field) 
-        @label_map[field['label']] = field_name if field['label']
+    def self.string_attributes
+      SS_STRING_ATTRIBUTES + custom_string_attributes
+    end
 
-        if (field['controlled'].to_s == "true") ||
-           (field['input'].to_s.include? "controlled") ||
-           (field['vocabularies'].is_a?(Array) && !field['vocabularies'].empty?) ||
-           (field['vocabulary'].is_a?(Hash) && !field['vocabulary'].empty?)
-          @controlled_field_names << field_name
-          field["controlled"] = true 
-        end
+    def self.display_groups
+      SS_DISPLAY_GROUPS + custom_display_groups
+    end
 
-        #the following is currently pretty application specific for UCSC.
-        # we should add a handle and put this code in our hyrax app.
-        unless field['hidden'].to_s == "true"
-          # if an optional "primary" flag is set, include it in the primary display group
-          @primary_display_field_names << field_name if field['primary'].to_s == "true"
-          case field['display_group'].underscore.downcase
-          when 'primary'
-            @primary_display_field_names << field_name unless @primary_display_field_names.include?(field_name)
-          when 'work_title'
-            @primary_display_field_names << field_name unless @primary_display_field_names.include?(field_name)
-            @work_title_field_name = field_name
-          when 'more', 'brief', 'secondary'
-            @secondary_display_field_names << field_name
-          when 'staff', 'staff_only', 'admin', 'admin_only', 'tertiary'
-            @admin_only_display_field_names << field_name
-          when 'editor_primary', 'primary_editor'
-            @primary_editor_field_names << field_name
-          end
-        end
-        @work_title_field_name = field_name if field['work_title'].to_s.downcase == "true"
-        @required_field_names << field_name if field['required'].to_s.downcase == "true"
-        @index_field_names << field_name if field['search_result_display'].to_s.downcase == "true"
-        @facet_field_names << field_name if field['facet'].to_s.downcase == "true"
-        @searchable_field_names << field_name if field['searchable_field'].to_s.downcase == "true"
-        @full_text_searchable_field_names << field_name if field['full_text_searchable'].to_s.downcase == "true"
-        @sortable_field_names << field_name if field['sortable'].to_s.downcase == "true"
-
-        #predicate management
-        raise ArgumentError.new("predicate required") if field["predicate"].nil?
-        ns_prefix = field["predicate"].split(":").first
-        predicate_name = field["predicate"].split(":",2).last
-        
-        #sort out the predicate namespace if necessary
-        namespaces = raw_schema['namespaces']
-        if namespaces.key?(ns_prefix)
-          field['predicate'] = namespaces[ns_prefix] + predicate_name
-          field['rdf_namespace'] = false
-        else
-          field['predicate'] = predicate_name
-          field['rdf_namespace'] = ns_prefix
-        end
-
-        @fields[field_name] = ScoobySnacks::Field.new(field_name,field)
-
+    def initialize (schema_config_path: nil, raw_schema: nil)
+      schema_config_path ||= default_schema_config_path
+      raw_schema ||= YAML.load_file(schema_config_path)
+      @namespaces = raw_schema['namespaces']
+      raw_fields = (raw_schema['fields'] || raw_schema['properties'])
+      @fields = raw_fields.except('default').keys.reduce({}) do |fields, field_name|
+        field = raw_fields['default'].deep_merge raw_fields[field_name]
+        fields[field_name] = ScoobySnacks::Field.new(field_name,field)
+        fields
       end
     end
 
-    # Some fields may be marked primary, but only for the editor
-    def primary_editor_field_names
-      (@primary_display_field_names + @primary_editor_field_names + @required_field_names).uniq
+    # define methods to list display group contents
+    display_groups.each do |display_group|
+      define_method("#{display_group}_display_field_names") do 
+        field_names = instance_variable_get("@#{display_group}_display_field_names")
+        if field_names.nil?
+          send("#{display_group}_display_fields".to_sym).map{|field| field.name}
+        else
+          field_names
+        end
+      end
+      define_method("#{display_group}_display_fields") do 
+        field_names = instance_variable_get("@#{display_group}_display_field_names")
+        return field_names.map{|name| get_field(name)} unless field_names.nil?
+        fields = @fields.values.select{|field| field.in_display_group?(display_group)}
+        instance_variable_set("@#{display_group}_display_field_names", fields.map{|field| field.name})
+        return fields       
+      end
     end
 
-    def secondary_editor_field_names
-      all_field_names - primary_editor_field_names
+    # Define methods to cache and return lists of fields & field names
+    # that share certain boolean characteristics (controlled, required, etc). 
+    boolean_attributes.each do |attribute|
+      # Skip any attribute we have a custom method for      
+      next if [:work_title].include? attribute
+      define_method("#{attribute}_fields".to_sym) do
+        @fields.values.select{|field| field.send("#{attribute}?".to_sym)}
+      end
+      define_method("#{attribute}_field_names".to_sym) do
+        field_names = send("#{attribute}_fields".to_sym).map{|field| field.name}
+        instance_variable_set("@#{attribute}_field_names".to_sym, field_names)
+      end
     end
 
-    def all_field_names
-      @fields.keys
-    end
-
-    def display_field_names
-      primary_display_field_names + secondary_display_field_names + admin_only_display_field_names
-    end
-
-    def display_fields
-      display_field_names.map{|name| get_field(name) }
-    end
-
-    def sortable_fields
-      sortable_field_names.map{|name| get_field(name) }
-    end
-
-    def controlled? field_name
-      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
-      schema.searchable_field_names.include?(field_name)
-    end
-
-    def searchable? field_name
-      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
-      schema.searchable_field_names.include?(field_name)
-    end
-
-    def sortable? field_name
-      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
-      schema.sortable_field_names.include?(field_name)
-    end
-
-    def index? field_name
-      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
-      schema.index_field_names.include?(field_name)
-    end
-
-    def facet? field_name
-      field_name = field_name.name if field_name.is_a ScoobySnacks::Field
-      schema.facet_field_names.include?(field_name)
-    end
-
-    def searchable_fields
-      searchable_field_names.map{|field_name| get_field(field_name) }
-    end
-
-    def required_fields
-      required_field_names.map{|field_name| get_field(field_name) }
-    end
-
-    def controlled_fields
-      controlled_field_names.map{|field_name| get_field(field_name) }
-    end
-
-    def default_text_search_solrized_field_names
-      # Include all fields marked for full text search that are also individual search fields
-      # data frin the rest of the marked fields will be included in the full text field
-      field_names = (full_text_searchable_field_names & searchable_field_names)
-      field_names = field_names.map{|field_name| get_field(field_name).solr_search_name }
-      field_names + [full_text_field_name]
-    end
-
-    def full_text_field_name
-      "all_text_timv"
-    end
-
-    def full_text_searchable_fields
-      full_text_searchable_field_names.map{|field_name| get_field(field_name) }
-    end
-
-    def index_fields
-      index_field_names.map{|field_name| get_field(field_name) }
-    end
-
-    def facet_fields
-      facet_field_names.map{|field_name| get_field(field_name) }
+    def get_field(name)
+      @fields[name.to_s] || @fields[label_map[name.to_s]]
     end
 
     def get_property(name)
       get_field(name)
     end
 
-    def get_field(name)
-      @fields[name] || @fields[@label_map[name]]
+    def all_field_names
+      @fields.keys
+    end
+
+    def default_text_search_solrized_field_names
+      # Include all fields marked for full text search that are also individual search fields
+      # and therefore excluded from the 'all_text_timv' search field
+      field_names = (full_text_searchable_field_names & searchable_field_names).uniq
+      field_solr_names = field_names.map{|field_name| get_field(field_name).solr_search_name }
+      return( field_solr_names + [full_text_field_name] )
+    end
+
+    def full_text_field_name
+      "all_text_timv"
+    end
+
+    def work_title_field
+      @fields.values.select{|field| field.in_display_group?("title") || field.work_title?}.first
+    end
+
+    def work_title_field_name
+      work_title_field.name
+    end
+
+    def display_field_names
+      primary_display_field_names + secondary_display_field_names
+    end
+
+    def display_fields
+      primary_display_fields + secondary_display_fields
+    end
+
+    # A few aliases for these methods since I've been using both conventions
+    def sort_fields
+      sortable_fields
+    end
+
+    def sort_field_names
+      sortable_field_names
+    end
+
+    def search_fields
+      searchable_fields
+    end
+
+    def search_field_names
+      searchable_field_names
+    end
+
+    private
+
+    def label_map
+      @label_map ||= @fields.values.reduce({}){|map,field| map[field.label] = field.name if field.label.present?; map }
+    end
+
+    def default_schema_config_path
+      @schema_config_path ||= File.join(Rails.root.to_s,'config',schema_config_filename)
+    end
+
+    def schema_config_filename
+      "metadata.yml"
     end
 
   end

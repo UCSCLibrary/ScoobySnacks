@@ -3,16 +3,6 @@ module ScoobySnacks
     
     attr_reader :name, :label, :oai_element, :oai_ns
 
-    def solr_search_name
-      #return false unless index?
-      @solr_search_name ||= Solrizer.solr_name(name)
-    end
-
-    def solr_facet_name
-      return false unless facet?
-      @solr_facet_name ||= Solrizer.solr_name(name,:symbol)
-    end
-
     def solr_sort_name
       return false unless sort?
       @solr_sort_name ||= Solrizer.solr_name(name, :stored_sortable)
@@ -29,63 +19,66 @@ module ScoobySnacks
       end
     end
 
-    def schema
-      ScoobySnacks::METADATA_SCHEMA
+    # here we define methods for simple boolean attributes associate with metadata fields
+    # ("meta-metadata properties")
+    ScoobySnacks::MetadataSchema.boolean_attributes.each do |attribute_name|
+      # Skip any attribute we have a custom method for
+      next if [:controlled].include? attribute_name
+      #define a method for this attribute
+      define_method("#{attribute_name}?".to_sym) do
+        # For boolean attributes, we cache the result to avoid repeated string comparison operations
+        attribute = instance_variable_get("@#{attribute_name}")
+        return attribute unless attribute.nil?
+        attribute = @raw_array[attribute_name.to_s].to_s.downcase.strip == "true"
+        instance_variable_set("@#{attribute_name}", attribute)
+        return attribute
+      end
     end
 
-    def facet?
-      @facet ||= schema.facet? name
+    # here we define methods for simple string attributes associate with metadata fields
+    # ("meta-metadata properties")
+    ScoobySnacks::MetadataSchema.string_attributes.each do |attribute_name|
+      # For string attributes, we just pull the result straight from the raw array        
+      define_method("#{attribute_name}".to_sym) do
+        @raw_array[attribute_name.to_s]
+      end
     end
 
-    def search?
-      @search ||= schema.searchable? name
+    def controlled?
+      return @controlled unless @controlled.nil?
+      @controlled = false
+      @controlled = true if @raw_array['controlled'].to_s == "true"
+      @controlled = true if @raw_array['input'].to_s.include? "controlled"
+      @controlled = true if (@raw_array['vocabularies'].is_a?(Array) && !@raw_array['vocabularies'].empty?)
+      @controlled = true if (@raw_array['vocabulary'].is_a?(Hash) && !@raw_array['vocabulary'].empty?)
+      return @controlled
     end
 
-    def sort?
-      @sort ||= schema.sortable? name
-    end
-
-    def index? 
-      @index ||= schema.index? name
+    def predicate
+      return @predicate if @predicate
+      raise ArgumentError.new("invalid predicate definition. Raw array: #{@raw_array.inspect}") if  @raw_array["predicate"].nil?
+      namespace_prefix = @raw_array["predicate"].split(":").first
+      predicate_name = @raw_array["predicate"].split(":",2).last
+      #sort out the predicate namespace if necessary
+      namespaces = schema.namespaces
+      if namespaces.key?(namespace_prefix) 
+        namespace_url = namespaces[namespace_prefix]
+        raise ArgumentError.new("invalid predicate definition: #{@raw_array['predicate']}") unless namespace_url.include?("http")
+        @predicate = ::RDF::URI.new(namespace_url + predicate_name)
+      elsif defined?("::RDF::Vocab::#{namespace_prefix}".constantize)
+        @predicate = "::RDF::Vocab::#{namespace_prefix}".constantize.send predicate_name
+      else
+        raise ArgumentError.new("invalid predicate definition: #{@raw_array['predicate']}")
+      end
+      @predicate
     end
 
     def date?
       @date ||= (@raw_array['input'].to_s.downcase.include? "date") || (@raw_array['data_type'].to_s.downcase.include? "date")  
     end
 
-    def controlled?
-      @controlled ||= schema.controlled? name
-    end
-
-    def multiple?
-      @multiple ||= (@raw_array['multiple'].to_s != "false")
-    end
-
-    def facet_limit 
-      @raw_array['facet_limit']
-    end
-
     def itemprop
       @raw_array['index_itemprop'] || @raw_array['itemprop']
-    end
-
-    def index_itemprop
-      itemprop
-    end
-
-    def predicate_name
-      @raw_array['predicate']
-    end
-
-    def predicate
-      return @predicate unless @predicate.nil?
-      if rdf_namespace
-        @predicate = "::RDF::Vocab::#{rdf_namespace}".constantize.send predicate_name
-      elsif predicate_name.include?("http")
-        @predicate = ::RDF::URI.new predicate_name
-      else
-        raise ArgumentError.new("invalid predicate definition")
-      end
     end
 
     def helper_method
@@ -93,32 +86,88 @@ module ScoobySnacks
       method_name.to_sym unless method_name.nil?
     end
 
-    def rdf_namespace
-      @raw_array['rdf_namespace']
+    def search?
+      searchable?
     end
 
-    def solr_class
+    def sort?
+      sortable?
+    end
 
+    def index_itemprop
+      itemprop
     end
 
     def oai?
       !@oai_element.nil? && !@oai_ns.nil?
     end
 
-    def input
-      @raw_array['input']
+    def display_options
+      options = {label: label}
+      if search?
+        options[:render_as] = :linked 
+        options[:search_field] = solr_search_name
+      end
+      return options
     end
 
-    def definition
-      @raw_array['definition']
+    def in_display_group? group_name
+      display_groups.each { |display_group| break true if (display_group.downcase == group_name.to_s.downcase) }==true
+    end
+
+    def search_result_display?
+      in_display_group? "search_result"
+    end
+
+    def display_groups
+      @raw_array['display_groups'] || Array(@raw_array['display_group'])      
+    end
+
+    def display_group
+      display_groups.first
     end
 
     def vocabularies
-      @raw_array['vocabularies'] || [@raw_array['vocabulary']]
+      @raw_array['vocabularies'] || Array(@raw_array['vocabulary'])
     end
 
     def primary_vocabulary
       vocabularies.first
+    end
+
+    def solr_name(facet: nil, keyword: false, string: false, symbol: false, tokenize: true)
+      facet = facet? if facet.nil?
+      facet = facet or keyword or string or symbol or !tokenize
+      case @raw_array['data_type'].downcase
+      when /string/, /keyword/, /symbol/
+        type = "s"
+      when /date/
+        type = "d"
+      else
+        type = "te"
+      end
+      type = "s" if facet
+      index = (search? or facet) ? "i" : ""
+      multiple = multiple? ? "m" : ""
+      return "#{name}_#{type}s#{index}#{multiple}"
+    end
+
+    def solr_search_name
+      solr_name
+    end
+
+    def solr_facet_name
+      solr_name(facet: true)
+    end
+
+    private
+
+    def schema
+      if defined? ScoobySnacks::METADATA_SCHEMA
+        return ScoobySnacks::METADATA_SCHEMA
+      else
+        @schema ||= ScoobySnacks::MetadataSchema.new
+      end
     end
 
   end
