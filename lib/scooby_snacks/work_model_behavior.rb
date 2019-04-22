@@ -6,14 +6,9 @@ module ScoobySnacks::WorkModelBehavior
 
   included do
 
-    # Special hidden property to store the last reconciliation date
-    property :last_reconciled, predicate: ::RDF::Vocab::XHTML.index, multiple: false
-    
     id_blank = proc { |attributes| attributes[:id].blank? }
-
     schema = ScoobySnacks::METADATA_SCHEMA
-
-    schema.fields.each do |field_name, field|
+    schema.fields.values.each do |field|
       # Define the property and its indexing
       # unless it is already defined (e.g. in hyrax core)
       unless respond_to? field.name.to_sym
