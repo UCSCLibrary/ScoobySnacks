@@ -10,7 +10,11 @@ module ScoobySnacks::SolrBehavior
     end
 
     def solr_name(*args)
-      Solrizer.solr_name(*args)
+      if ScoobySnacks::METADATA_SCHEMA.all_field_names.include?(args.first)
+        ScoobySnacks::METADATA_SCHEMA.get_field(args.first).solr_name
+      else
+        Solrizer.solr_name(*args)
+      end
     end
 
     def add_field_semantics(label,solr_name)
@@ -55,15 +59,11 @@ module ScoobySnacks::SolrBehavior
 
   included do
 
-
-    attribute :last_reconciled, Solr::Date, solr_name("last_reconciled")
-
     # Loop through all properties from all work types
-    ScoobySnacks::METADATA_SCHEMA.fields.values.each do |field|
+    ScoobySnacks::METADATA_SCHEMA.stored_in_solr_fields.each do |field|
       next if respond_to? field.name
-      # define an index attribute for the current property
-      attribute field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_search_name
-           
+      # define a attribute for the current property
+      attribute(field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_search_name) unless field.hidden?           
       add_field_semantics(field.oai_element, field.solr_search_name) if (field.oai? && field.oai_ns == 'dc')
     end
   end
