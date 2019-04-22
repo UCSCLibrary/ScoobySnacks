@@ -6,7 +6,7 @@ module ScoobySnacks
       self.add_search_fields(config)
       self.add_facet_fields(config)
       self.add_sort_fields(config)
-      self.add_index_fields(config)
+      self.add_search_result_display_fields(config)
     end
 
     def self.add_show_fields(config)
@@ -21,7 +21,6 @@ module ScoobySnacks
 
     def self.add_search_fields(config)
       self.schema.searchable_fields.each do |field|
-        Rails.logger.info "Adding search field: #{field.label} with solr name: #{field.solr_search_name}"
         config.add_search_field(field.name) do |new_field|
           new_field.label = field.label
           new_field.solr_local_parameters = {
@@ -44,9 +43,8 @@ module ScoobySnacks
       end
     end
 
-    def self.add_index_fields(config)
-       self.schema.index_fields.each do |field|
-        Rails.logger.info "Adding index field: #{field.name} with solr name: #{field.solr_search_name} and options: #{self.get_index_options(field).inspect}"
+    def self.add_search_result_display_fields(config)
+       self.schema.search_result_display_fields.each do |field|
          config.add_index_field(field.solr_search_name, self.get_index_options(field))
       end
     end
