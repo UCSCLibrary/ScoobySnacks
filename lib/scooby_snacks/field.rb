@@ -50,6 +50,7 @@ module ScoobySnacks
       @controlled = true if @raw_array['controlled'].to_s == "true"
       @controlled = true if @raw_array['input'].to_s.include? "controlled"
       @controlled = true if (@raw_array['vocabularies'].is_a?(Array) && !@raw_array['vocabularies'].empty?)
+      @controlled = true if (@raw_array['vocabulary'].is_a?(Array) && !@raw_array['vocabulary'].empty?)
       @controlled = true if (@raw_array['vocabulary'].is_a?(Hash) && !@raw_array['vocabulary'].empty?)
       return @controlled
     end
@@ -120,7 +121,7 @@ module ScoobySnacks
     end
 
     def display_groups
-      @raw_array['display_groups'] || Array(@raw_array['display_group'])      
+      @raw_array['display_groups'] || Array.wrap(@raw_array['display_group'])     
     end
 
     def display_group
@@ -128,7 +129,7 @@ module ScoobySnacks
     end
 
     def vocabularies
-      @raw_array['vocabularies'] || Array(@raw_array['vocabulary'])
+      @raw_array['vocabularies'] || Array.wrap(@raw_array['vocabulary'])
     end
 
     def primary_vocabulary
@@ -153,7 +154,7 @@ module ScoobySnacks
     end
 
     def solr_search_name
-      solr_name
+      solr_name(facet: false)
     end
 
     def solr_facet_name

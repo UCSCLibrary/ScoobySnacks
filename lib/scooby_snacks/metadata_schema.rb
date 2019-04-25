@@ -107,6 +107,10 @@ module ScoobySnacks
       @fields.keys
     end
 
+    def all_fields
+      @fields.values
+    end
+
     def default_text_search_solrized_field_names
       # Include all fields marked for full text search that are also individual search fields
       # and therefore excluded from the 'all_text_timv' search field
