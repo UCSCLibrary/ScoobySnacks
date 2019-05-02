@@ -13,7 +13,8 @@ module ScoobySnacks::WorkModelBehavior
       # unless it is already defined (e.g. in hyrax core)
       unless respond_to? field.name.to_sym
         property field.name.to_sym, {predicate: field.predicate, multiple: field.multiple?}  do |index| 
-          index.as :stored_searchable
+          index.as *field.solr_descriptors
+          index.type field.solr_data_type
         end
       end
     end #end fields loop
