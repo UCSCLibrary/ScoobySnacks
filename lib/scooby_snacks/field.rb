@@ -105,9 +105,9 @@ module ScoobySnacks
 
     def display_options
       options = {label: label}
-      if search?
+      if searchable?
         options[:render_as] = :linked 
-        options[:search_field] = solr_search_name
+        options[:search_field] = name
       end
       return options
     end
@@ -136,29 +136,40 @@ module ScoobySnacks
       vocabularies.first
     end
 
-    def solr_name(facet: nil, keyword: false, string: false, symbol: false, tokenize: true)
-      facet = facet? if facet.nil?
-      facet = facet or keyword or string or symbol or !tokenize
-      case @raw_array['data_type'].downcase
-      when /string/, /keyword/, /symbol/
-        type = "s"
-      when /date/
-        type = "d"
-      else
-        type = "te"
-      end
-      type = "s" if facet
-      index = (search? or facet) ? "i" : ""
-      multiple = multiple? ? "m" : ""
-      return "#{name}_#{type}s#{index}#{multiple}"
+    def solr_names
+      solr_descriptors.reduce([]){|names, desc| names << solr_name(desc)}
+    end
+
+    def solr_name(descriptor = nil)
+      descriptor ||= solr_descriptors.first
+      Solrizer.solr_name(name,descriptor,type: solr_data_type)
     end
 
     def solr_search_name
-      solr_name(facet: false)
+      return "" unless searchable?
+      solr_name(:stored_searchable)
     end
 
     def solr_facet_name
-      solr_name(facet: true)
+      return "" unless facet?
+      solr_name(:facetable)
+    end
+
+    def solr_sort_name
+      return "" unless sort?
+      solr_name(:stored_sortable)
+    end
+
+    def solr_descriptors
+      descriptors = []
+      descriptors << :stored_searchable if searchable?
+      descriptors << :facetable if facet?
+      descriptors << :displayable if (descriptors.empty? && stored_in_solr?)
+      return descriptors
+    end
+
+    def solr_data_type
+      @raw_array['data_type'].downcase.to_sym || :text
     end
 
     private
