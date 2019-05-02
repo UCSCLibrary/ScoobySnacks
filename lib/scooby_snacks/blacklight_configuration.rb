@@ -12,19 +12,18 @@ module ScoobySnacks
     def self.add_show_fields(config)
        self.schema.display_fields.each do |field|
          begin
-           config.add_show_field field.solr_search_name, label: field.label
+           config.add_show_field field.solr_name, label: field.label
          rescue 
-           Rails.logger.error "error adding field: #{field.solr_search_name} for property #{field.label}. Redundant definition?"
+           Rails.logger.error "error adding field: #{field.solr_name} for property #{field.label}. Redundant definition?"
          end
        end
     end
 
     def self.add_search_fields(config)
       self.schema.searchable_fields.each do |field|
-        config.add_search_field(field.name) do |new_field|
-          new_field.label = field.label
-          new_field.solr_local_parameters = {
-            qf: field.solr_search_name,
+        config.add_search_field(field.name, label: field.label, include_in_advanced_search: true) do |new_field|
+          new_field.solr_parameters = {
+            qf: field.solr_search_name.to_s,
             pf: field.solr_search_name
           }
         end
@@ -45,7 +44,7 @@ module ScoobySnacks
 
     def self.add_search_result_display_fields(config)
        self.schema.search_result_display_fields.each do |field|
-         config.add_index_field(field.solr_search_name, self.get_index_options(field))
+         config.add_index_field(field.solr_name, self.get_index_options(field))
       end
     end
 
@@ -54,7 +53,7 @@ module ScoobySnacks
         options[:label] =  field.label || field.name
         options[:index_itemprop] = field.itemprop if field.itemprop
         options[:helper_method] = field.helper_method if field.helper_method
-        options[:link_to_search] = field.solr_search_name if field.search?
+        options[:link_to_search] = field.solr_search_name if field.searchable?
         return options
     end
 
