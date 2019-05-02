@@ -28,9 +28,8 @@ module ScoobySnacks::WorkFormBehavior
       ScoobySnacks::METADATA_SCHEMA.controlled_field_names.each do |field_name|
         permitted << {"#{field_name}_attributes".to_sym => [:id, :_destroy]}
       end
-      return params
+      return permitted
     end
-
 
   end
 end
