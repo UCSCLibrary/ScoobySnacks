@@ -44,13 +44,18 @@ module ScoobySnacks::SolrBehavior
 
     class Date
       # @return [Date]
-      def self.coerce(input)
-        field = String.coerce(input)
-        return if field.blank?
-        begin
-          ::Date.parse(field)
-        rescue ArgumentError
-          Rails.logger.info "Unable to parse date: #{field.first.inspect}"
+      def self.coerce(inputs)
+        ::Array.wrap(inputs).reject{|input| input.blank?}.map do |input|
+          field = String.coerce(input)
+          begin
+            if (field.to_i.to_s == field) && (field.to_i < 3000)
+              ::Date.new(field.to_i)
+            else
+              ::Date.parse(field)
+            end
+          rescue ArgumentError
+            Rails.logger.info "Unable to parse date: #{field.inspect}"
+          end
         end
       end
     end
