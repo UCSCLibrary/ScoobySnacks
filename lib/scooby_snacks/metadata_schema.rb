@@ -50,6 +50,53 @@ module ScoobySnacks
       SS_DISPLAY_GROUPS + custom_display_groups
     end
 
+    def self.define_display_group_methods display_groups
+      # define methods to list display group contents
+      display_groups.each do |display_group|
+
+        define_method("#{display_group}_display_field_names") do 
+          field_names = instance_variable_get("@#{display_group}_display_field_names")
+          if field_names.nil?
+            send("#{display_group}_display_fields".to_sym).map{|field| field.name}
+          else
+            field_names
+          end
+        end
+
+        define_method("#{display_group}_display_fields") do 
+          field_names = instance_variable_get("@#{display_group}_display_field_names")
+          if field_names.nil?
+            fields = all_fields.select{|field| field.in_display_group?(display_group)}
+            instance_variable_set("@#{display_group}_display_field_names", fields.map{|field| field.name}) 
+            fields
+          else
+            field_names.map{|name| get_field(name)}
+          end
+        end   
+      end
+    end
+
+    define_display_group_methods(display_groups)
+
+    def self.define_boolean_attribute_methods boolean_attributes
+
+      # Define methods to cache and return lists of fields & field names
+      # that share certain boolean characteristics (controlled, required, etc). 
+      boolean_attributes.each do |attribute|
+        # Skip any attribute we have a custom method for      
+        next if [:work_title].include? attribute
+        define_method("#{attribute}_fields".to_sym) do
+          @fields.values.select{|field| field.send("#{attribute}?".to_sym)}
+        end
+        define_method("#{attribute}_field_names".to_sym) do
+          field_names = send("#{attribute}_fields".to_sym).map{|field| field.name}
+          instance_variable_set("@#{attribute}_field_names".to_sym, field_names)
+        end
+      end
+    end
+
+    define_boolean_attribute_methods(boolean_attributes)
+
     def initialize (schema_config_path: nil, raw_schema: nil)
       schema_config_path ||= default_schema_config_path
       raw_schema ||= YAML.load_file(schema_config_path)
@@ -61,40 +108,7 @@ module ScoobySnacks
         fields
       end
     end
-
-    # define methods to list display group contents
-    display_groups.each do |display_group|
-      define_method("#{display_group}_display_field_names") do 
-        field_names = instance_variable_get("@#{display_group}_display_field_names")
-        if field_names.nil?
-          send("#{display_group}_display_fields".to_sym).map{|field| field.name}
-        else
-          field_names
-        end
-      end
-      define_method("#{display_group}_display_fields") do 
-        field_names = instance_variable_get("@#{display_group}_display_field_names")
-        return field_names.map{|name| get_field(name)} unless field_names.nil?
-        fields = @fields.values.select{|field| field.in_display_group?(display_group)}
-        instance_variable_set("@#{display_group}_display_field_names", fields.map{|field| field.name})
-        return fields       
-      end
-    end
-
-    # Define methods to cache and return lists of fields & field names
-    # that share certain boolean characteristics (controlled, required, etc). 
-    boolean_attributes.each do |attribute|
-      # Skip any attribute we have a custom method for      
-      next if [:work_title].include? attribute
-      define_method("#{attribute}_fields".to_sym) do
-        @fields.values.select{|field| field.send("#{attribute}?".to_sym)}
-      end
-      define_method("#{attribute}_field_names".to_sym) do
-        field_names = send("#{attribute}_fields".to_sym).map{|field| field.name}
-        instance_variable_set("@#{attribute}_field_names".to_sym, field_names)
-      end
-    end
-
+    
     def get_field(name)
       @fields[name.to_s] || @fields[label_map[name.to_s]]
     end
