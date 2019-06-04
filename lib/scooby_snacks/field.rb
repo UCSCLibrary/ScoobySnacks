@@ -105,7 +105,9 @@ module ScoobySnacks
 
     def display_options
       options = {label: label}
-      if searchable?
+      if date?
+        options[:render_as] = :date
+      elsif searchable?
         options[:render_as] = :linked 
         options[:search_field] = name
       end
