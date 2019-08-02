@@ -17,10 +17,6 @@ module ScoobySnacks::SolrBehavior
       end
     end
 
-    def add_field_semantics(label,solr_name)
-      field_semantics.merge!(label => Array.wrap(solr_name)) {|key, old_val, new_val| Array.wrap(old_val) + Array.wrap(new_val)}
-    end
-
   end
 
 
@@ -68,7 +64,6 @@ module ScoobySnacks::SolrBehavior
     ScoobySnacks::METADATA_SCHEMA.stored_in_solr_fields.each do |field|
       next if respond_to? field.name
       # define a attribute for the current property
-      add_field_semantics(field.oai_element, field.solr_name) if (field.oai? && field.oai_ns == 'dc')
       attribute(field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_name) unless field.hidden?           
     end
   end
