@@ -64,7 +64,7 @@ module ScoobySnacks::SolrBehavior
     ScoobySnacks::METADATA_SCHEMA.stored_in_solr_fields.each do |field|
       next if respond_to? field.name
       # define a attribute for the current property
-      attribute(field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_name) unless field.hidden?           
+      attribute(field.name.to_sym, (field.date? ? Solr::Date : Solr::Array), field.solr_name)
     end
   end
 end

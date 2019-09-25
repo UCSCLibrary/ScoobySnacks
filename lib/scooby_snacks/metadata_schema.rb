@@ -12,7 +12,9 @@ module ScoobySnacks
                              :work_title, 
                              :hidden,
                              :stored_in_solr,
-                             :controlled]
+                             :controlled,
+                             :inheritable]
+
     SS_STRING_ATTRIBUTES = [:facet_limit, 
                             :helper_method, 
                             :input, 
