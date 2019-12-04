@@ -4,6 +4,7 @@ module ScoobySnacks
     attr_reader :fields, :namespaces
     
     SS_BOOLEAN_ATTRIBUTES = [:facet,
+                             :symbol,
                              :searchable,
                              :sortable,
                              :multiple, 

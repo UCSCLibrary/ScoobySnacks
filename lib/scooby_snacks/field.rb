@@ -164,7 +164,8 @@ module ScoobySnacks
 
     def solr_descriptors
       descriptors = []
-      descriptors << :stored_searchable if searchable?
+      descriptors << :symbol if (symbol? or [:string,:symbol].include?(@raw_array['data_type'].downcase.to_sym))
+      descriptors << :stored_searchable if (searchable? and !descriptors.include?(:symbol))
       descriptors << :facetable if facet?
       descriptors << :displayable if (descriptors.empty? && stored_in_solr?)
       return descriptors
