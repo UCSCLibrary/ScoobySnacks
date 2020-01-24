@@ -44,6 +44,17 @@ module ScoobySnacks
       end
     end
 
+    def example
+      return @raw_array["example"] if @raw_array["example"]
+      if controlled?
+        return "http://id.loc.gov/authorities/names/n2002034393"
+      elsif date?
+        return "01-01-1901"
+      else
+        return "Example #{name.titleize}"
+      end
+    end
+
     def controlled?
       return @controlled unless @controlled.nil?
       @controlled = false
