@@ -19,7 +19,8 @@ module ScoobySnacks
     SS_STRING_ATTRIBUTES = [:facet_limit, 
                             :helper_method, 
                             :input, 
-                            :definition]
+                            :definition,
+                            :example]
 
     SS_DISPLAY_GROUPS = [:primary,
                          :secondary, 
