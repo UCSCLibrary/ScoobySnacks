@@ -4,6 +4,7 @@ module ScoobySnacks
     attr_reader :fields, :namespaces
     
     SS_BOOLEAN_ATTRIBUTES = [:facet,
+                             :symbol,
                              :searchable,
                              :sortable,
                              :multiple, 
@@ -13,12 +14,14 @@ module ScoobySnacks
                              :hidden,
                              :stored_in_solr,
                              :controlled,
-                             :inheritable]
+                             :inheritable,
+                             :collection_inheritable]
 
     SS_STRING_ATTRIBUTES = [:facet_limit, 
                             :helper_method, 
                             :input, 
-                            :definition]
+                            :definition,
+                            :example]
 
     SS_DISPLAY_GROUPS = [:primary,
                          :secondary, 
