@@ -15,6 +15,7 @@ module ScoobySnacks
                              :stored_in_solr,
                              :controlled,
                              :inheritable,
+                             :linked_to_search,
                              :collection_inheritable]
 
     SS_STRING_ATTRIBUTES = [:facet_limit, 

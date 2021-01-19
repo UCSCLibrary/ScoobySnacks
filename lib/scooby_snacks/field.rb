@@ -1,4 +1,4 @@
-module ScoobySnacks
+odule ScoobySnacks
   class Field
     
     attr_reader :name, :label, :oai_element, :oai_ns
@@ -118,7 +118,7 @@ module ScoobySnacks
       options = {label: label}
       if date?
         options[:render_as] = :date
-      elsif searchable?
+      elsif searchable? && linked_to_search?
         options[:render_as] = :linked 
         options[:search_field] = name
       end
