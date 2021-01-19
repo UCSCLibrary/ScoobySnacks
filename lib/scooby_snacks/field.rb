@@ -1,4 +1,4 @@
-odule ScoobySnacks
+module ScoobySnacks
   class Field
     
     attr_reader :name, :label, :oai_element, :oai_ns
@@ -197,4 +197,3 @@ odule ScoobySnacks
     end
 
   end
-end
