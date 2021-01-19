@@ -38,7 +38,8 @@ module ScoobySnacks
  
     def self.add_sort_fields(config)
        self.schema.sortable_fields.each do |field|
-         config.add_sort_field field.solr_sort_name, label: field.label
+         config.add_sort_field "#{field.solr_sort_name} asc", label: "#{field.label} \u25BC"
+         config.add_sort_field "#{field.solr_sort_name} desc", label: "#{field.label} \u25B2"
       end
     end
 
