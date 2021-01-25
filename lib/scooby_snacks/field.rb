@@ -5,7 +5,7 @@ module ScoobySnacks
 
     def solr_sort_name
       return false unless sort?
-      @solr_sort_name ||= Solrizer.solr_name(name, :stored_sortable)
+      @solr_sort_name ||= Solrizer.solr_name("#{name}_sort", :stored_sortable)
     end
 
     def initialize name, raw_array
