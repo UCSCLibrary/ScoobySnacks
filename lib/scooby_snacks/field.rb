@@ -178,8 +178,10 @@ module ScoobySnacks
 
     def solr_descriptors
       descriptors = []
-      descriptors << :symbol if symbol?
-      descriptors << :stored_searchable if (searchable? and !symbol?)
+      # The 'symbol' metadata field property was unused and has been removed
+      #descriptors << :symbol if symbol?
+      #descriptors << :stored_searchable if (searchable? and !symbol?)
+      descriptors << :stored_searchable if searchable?
       descriptors << :facetable if facet?
       descriptors << :displayable if (descriptors.empty? && stored_in_solr?)
       return descriptors
