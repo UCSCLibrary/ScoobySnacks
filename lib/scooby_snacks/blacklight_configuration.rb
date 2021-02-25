@@ -53,7 +53,7 @@ module ScoobySnacks
         options = {}
         options[:label] =  field.label || field.name
         options[:index_itemprop] = field.itemprop if field.itemprop
-        options[:helper_method] = field.helper_method if field.helper_method
+        options[:helper_method] = :date if (field.data_type == "date")
         options[:link_to_search] = field.solr_search_name if field.searchable?
         return options
     end
