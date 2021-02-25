@@ -168,7 +168,7 @@ module ScoobySnacks
       return "" unless sort?
       # Index everything except dates as a string for sorting.
       # Sorting based on text broken up into words doesn't work.
-      data_type = (solr_data_type == "date") ? "date" : "string" 
+      data_type = (solr_data_type == "date") ? :date : :string 
       solr_name(:stored_sortable, data_type)
     end
 
