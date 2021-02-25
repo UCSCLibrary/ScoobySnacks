@@ -3,11 +3,6 @@ module ScoobySnacks
     
     attr_reader :name, :label, :oai_element, :oai_ns
 
-    def solr_sort_name
-      return false unless sort?
-      @solr_sort_name ||= Solrizer.solr_name(name, :stored_sortable)
-    end
-
     def initialize name, raw_array
       @raw_array = raw_array
       @name = name
@@ -95,6 +90,7 @@ module ScoobySnacks
 
     def helper_method
       method_name = (@raw_array['index_helper_method'] || @raw_array['helper_method'])
+      method_name ||= "date" if (input_type == "date")
       method_name.to_sym unless method_name.nil?
     end
 
@@ -153,9 +149,9 @@ module ScoobySnacks
       solr_descriptors.reduce([]){|names, desc| names << solr_name(desc)}
     end
 
-    def solr_name(descriptor = nil)
+    def solr_name(descriptor = nil, data_type = false)
       descriptor ||= solr_descriptors.first
-      Solrizer.solr_name(name,descriptor,type: solr_data_type)
+      Solrizer.solr_name(name,descriptor,type: (data_type || solr_data_type))
     end
 
     def solr_search_name
@@ -170,13 +166,20 @@ module ScoobySnacks
 
     def solr_sort_name
       return "" unless sort?
-      solr_name(:stored_sortable)
+      # Index everything except dates as a string for sorting.
+      # Sorting based on text broken up into words doesn't work.
+      data_type = (solr_data_type == "date") ? "date" : "string" 
+      solr_name(:stored_sortable, data_type)
+    end
+
+    def symbol?
+      data_type.to_s == "string"
     end
 
     def solr_descriptors
       descriptors = []
-      descriptors << :symbol if (symbol? or [:string,:symbol].include?(@raw_array['data_type'].downcase.to_sym))
-      descriptors << :stored_searchable if (searchable? and !descriptors.include?(:symbol))
+      descriptors << :symbol if symbol?
+      descriptors << :stored_searchable if (searchable? and !symbol?)
       descriptors << :facetable if facet?
       descriptors << :displayable if (descriptors.empty? && stored_in_solr?)
       return descriptors
