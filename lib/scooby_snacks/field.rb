@@ -173,18 +173,20 @@ module ScoobySnacks
     end
 
     def symbol?
-      data_type.to_s == "string"
+      solr_data_type.to_s == "string"
     end
 
     def solr_descriptors
       descriptors = []
-      # The 'symbol' metadata field property was unused and has been removed
-      #descriptors << :symbol if symbol?
-      #descriptors << :stored_searchable if (searchable? and !symbol?)
-      descriptors << :stored_searchable if searchable?
+      descriptors << :symbol if symbol?
+      descriptors << :stored_searchable if (searchable? and !symbol?)
       descriptors << :facetable if facet?
       descriptors << :displayable if (descriptors.empty? && stored_in_solr?)
       return descriptors
+    end
+
+    def data_type
+      solr_data_type
     end
 
     def solr_data_type
